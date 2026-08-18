@@ -379,7 +379,9 @@ function AppContent() {
       case 'reportes':
         return <ReportesMenu onNavigate={setPaginaActual} />;
       case 'reporte-iva':
-        return <Reportes selectedClub={clubSeleccionado} selectedSeason={temporadaActual} temporadas={temporadas} clubName={clubActivo?.nombre || 'Todos los clubs'} clubEscudo={clubActivo?.escudo_url} onSeasonChange={setTemporadaActual} onNavigate={setPaginaActual} />;
+        return <Reportes tipoReporte="iva" selectedClub={clubSeleccionado} selectedSeason={temporadaActual} temporadas={temporadas} clubName={clubActivo?.nombre || 'Todos los clubs'} clubEscudo={clubActivo?.escudo_url} onSeasonChange={setTemporadaActual} onNavigate={setPaginaActual} />;
+      case 'reporte-balance':
+        return <Reportes tipoReporte="balance" selectedClub={clubSeleccionado} selectedSeason={temporadaActual} temporadas={temporadas} clubName={clubActivo?.nombre || 'Todos los clubs'} clubEscudo={clubActivo?.escudo_url} onSeasonChange={setTemporadaActual} onNavigate={setPaginaActual} />;
       case 'cuentas-bancarias':
         return <CuentasBancarias selectedClub={clubSeleccionado} selectedSeason={temporadaActual} />;
       default:

@@ -11,7 +11,7 @@ import {
 
 const formatearEuros = (valor) => new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(valor || 0));
 
-export default function Reportes({ selectedClub = 'all', selectedSeason = '', temporadas = [], clubName = 'Club', clubEscudo = '', onSeasonChange = null, onNavigate = null }) {
+export default function Reportes({ selectedClub = 'all', selectedSeason = '', temporadas = [], clubName = 'Club', clubEscudo = '', onSeasonChange = null, onNavigate = null, tipoReporte = 'iva' }) {
   const MAX_MOVIMIENTOS_MOSTRADOS = 10;
   const formatearEuros = (valor) => new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(valor || 0));
   const [ingresos, setIngresos] = useState([]);
@@ -155,6 +155,7 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
 
   const etiquetaIva = ivaNeto >= 0 ? 'A pagar' : 'A devolver';
   const etiquetaBalance = balancePeriodo >= 0 ? 'Balance positivo' : 'Balance negativo';
+  const esReporteBalance = tipoReporte === 'balance';
 
   const exportarCsv = () => {
     const filas = [
@@ -191,12 +192,12 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
       <header className="reporte-encabezado-impresion">
         {clubEscudo && <img src={clubEscudo} alt="Escudo" className="reporte-escudo" />}
         <h1>{clubName}</h1>
-        <h2>Cálculo de IVA</h2>
+        <h2>{esReporteBalance ? 'Balance financiero' : 'Cálculo de IVA'}</h2>
         <p>
           Temporada {temporadaActiva} · {trimestresDisponibles.find((trim) => trim.value === trimestreSeleccionado)?.label || trimestreSeleccionado}
         </p>
       </header>
-      <h1>💰 Declaración de IVA</h1>
+      <h1>{esReporteBalance ? '💰 Balance financiero' : '💰 Declaración de IVA'}</h1>
 
       <div className="mes-selector rango-iva">
         <label>Temporada:</label>
@@ -223,61 +224,87 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
         </div>
       ) : (
         <div className="reportes-grid">
-          <section className="reporte-seccion">
-            <h2>Resultado IVA</h2>
-            <div className="datos-principales">
-              <div className="dato-item ingreso">
-                <h3>IVA cobrado</h3>
-                <p className="cantidad">€{formatearEuros(ivaCobrado)}</p>
-              </div>
-              <div className="dato-item egreso">
-                <h3>IVA pagado</h3>
-                <p className="cantidad">€{formatearEuros(ivaPagado)}</p>
-              </div>
-              <div className="dato-item saldo">
-                <h3>{etiquetaIva}</h3>
-                <p className="cantidad">€{formatearEuros(Math.abs(ivaNeto))}</p>
-              </div>
-            </div>
-          </section>
+          {esReporteBalance ? (
+            <>
+              <section className="reporte-seccion">
+                <h2>Balance entre ingresos y gastos</h2>
+                <div className="datos-principales">
+                  <div className="dato-item ingreso">
+                    <h3>Ingresos</h3>
+                    <p className="cantidad">€{formatearEuros(totalIngresosPeriodo)}</p>
+                  </div>
+                  <div className="dato-item egreso">
+                    <h3>Gastos</h3>
+                    <p className="cantidad">€{formatearEuros(totalGastosPeriodo)}</p>
+                  </div>
+                  <div className="dato-item saldo">
+                    <h3>{etiquetaBalance}</h3>
+                    <p className="cantidad">€{formatearEuros(Math.abs(balancePeriodo))}</p>
+                  </div>
+                </div>
+              </section>
 
-          <section className="reporte-seccion">
-            <h2>Balance entre ingresos y gastos</h2>
-            <div className="datos-principales">
-              <div className="dato-item ingreso">
-                <h3>Ingresos</h3>
-                <p className="cantidad">€{formatearEuros(totalIngresosPeriodo)}</p>
-              </div>
-              <div className="dato-item egreso">
-                <h3>Gastos</h3>
-                <p className="cantidad">€{formatearEuros(totalGastosPeriodo)}</p>
-              </div>
-              <div className="dato-item saldo">
-                <h3>{etiquetaBalance}</h3>
-                <p className="cantidad">€{formatearEuros(Math.abs(balancePeriodo))}</p>
-              </div>
-            </div>
-          </section>
+              <section className="reporte-seccion">
+                <h2>Movimientos del periodo</h2>
+                <div className="resumen-iva">
+                  <div className="fila-iva">
+                    <span>Ingresos del periodo</span>
+                    <strong>{ingresosPeriodo.length}</strong>
+                  </div>
+                  <div className="fila-iva">
+                    <span>Gastos del periodo</span>
+                    <strong>{egresosPeriodo.length}</strong>
+                  </div>
+                  <div className="fila-iva">
+                    <span>Periodo</span>
+                    <strong>
+                      {trimestresDisponibles.find((trim) => trim.value === trimestreSeleccionado)?.label || trimestreSeleccionado}
+                    </strong>
+                  </div>
+                </div>
+              </section>
+            </>
+          ) : (
+            <>
+              <section className="reporte-seccion">
+                <h2>Resultado IVA</h2>
+                <div className="datos-principales">
+                  <div className="dato-item ingreso">
+                    <h3>IVA cobrado</h3>
+                    <p className="cantidad">€{formatearEuros(ivaCobrado)}</p>
+                  </div>
+                  <div className="dato-item egreso">
+                    <h3>IVA pagado</h3>
+                    <p className="cantidad">€{formatearEuros(ivaPagado)}</p>
+                  </div>
+                  <div className="dato-item saldo">
+                    <h3>{etiquetaIva}</h3>
+                    <p className="cantidad">€{formatearEuros(Math.abs(ivaNeto))}</p>
+                  </div>
+                </div>
+              </section>
 
-          <section className="reporte-seccion">
-            <h2>Movimientos del periodo</h2>
-            <div className="resumen-iva">
-              <div className="fila-iva">
-                <span>Ingresos del periodo</span>
-                <strong>{movimientosIngresosFiltrados.length}</strong>
-              </div>
-              <div className="fila-iva">
-                <span>Gastos del periodo</span>
-                <strong>{movimientosEgresosFiltrados.length}</strong>
-              </div>
-              <div className="fila-iva">
-                <span>Periodo</span>
-                <strong>
-                  {trimestresDisponibles.find((trim) => trim.value === trimestreSeleccionado)?.label || trimestreSeleccionado}
-                </strong>
-              </div>
-            </div>
-          </section>
+              <section className="reporte-seccion">
+                <h2>Movimientos del periodo</h2>
+                <div className="resumen-iva">
+                  <div className="fila-iva">
+                    <span>Ingresos del periodo</span>
+                    <strong>{movimientosIngresosFiltrados.length}</strong>
+                  </div>
+                  <div className="fila-iva">
+                    <span>Gastos del periodo</span>
+                    <strong>{movimientosEgresosFiltrados.length}</strong>
+                  </div>
+                  <div className="fila-iva">
+                    <span>Periodo</span>
+                    <strong>
+                      {trimestresDisponibles.find((trim) => trim.value === trimestreSeleccionado)?.label || trimestreSeleccionado}
+                    </strong>
+                  </div>
+                </div>
+              </section>
+            </>
+          )}
         </div>
       )}
 
