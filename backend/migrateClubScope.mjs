@@ -242,13 +242,13 @@ try {
   const defaultClub = clubs[0]?.id || 1;
 
   await connection.query(
-    `INSERT INTO "clubes" ("nombre", "ciudad", "liga", "estadio", "presupuesto", "estado")
-     SELECT $1, $2, $3, $4, $5, $6
-     WHERE NOT EXISTS (
-       SELECT 1 FROM "clubes" WHERE "nombre" = $1
-     )`,
-    ['Real Madrid CF', 'Madrid', 'LaLiga', 'Santiago Bernabéu', 240000000, 'Activo']
-  );
+  `INSERT INTO "clubes" ("nombre", "ciudad", "liga", "estadio", "presupuesto", "estado")
+   SELECT $1::varchar(255), $2::varchar(255), $3::varchar(255), $4::varchar(255), $5::numeric(12,2), $6::varchar(50)
+   WHERE NOT EXISTS (
+     SELECT 1 FROM "clubes" WHERE "nombre" = $1::varchar(255)
+   )`,
+  ['Real Madrid CF', 'Madrid', 'LaLiga', 'Santiago Bernabéu', 240000000, 'Activo']
+);
 
   const { rows: freshClub } = await connection.query('SELECT id FROM "clubes" ORDER BY id LIMIT 1');
   const actualDefaultClub = freshClub[0]?.id || defaultClub;
