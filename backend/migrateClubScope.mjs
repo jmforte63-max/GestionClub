@@ -76,6 +76,7 @@ try {
       estado VARCHAR(50) DEFAULT 'Activo',
       fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )`);
+    await client.query(`CREATE UNIQUE INDEX IF NOT EXISTS uk_clubes_nombre ON clubes (nombre)`);
     await ensureColumn(client, 'clubes', 'escudo_url', 'VARCHAR(500)');
 
     await ensureTable(client, 'usuarios', `CREATE TABLE usuarios (
