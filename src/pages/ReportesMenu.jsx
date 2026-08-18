@@ -18,6 +18,15 @@ export default function ReportesMenu({ onNavigate }) {
           </span>
           <span className="reporte-card-arrow">→</span>
         </button>
+
+        <button className="reporte-card reporte-card-balance" onClick={() => onNavigate('reporte-iva')}>
+          <span className="reporte-card-icon">€</span>
+          <span className="reporte-card-content">
+            <strong>Balance financiero</strong>
+            <small>Compara ingresos, gastos y saldo neto del periodo.</small>
+          </span>
+          <span className="reporte-card-arrow">→</span>
+        </button>
       </div>
     </div>
   );
