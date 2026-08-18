@@ -260,11 +260,17 @@ try {
     await client.query('UPDATE jugadores SET club_id = $1 WHERE club_id IS NULL OR club_id = 0', [actualDefaultClub]);
     await client.query('UPDATE eventos SET club_id = $1 WHERE club_id IS NULL OR club_id = 0', [actualDefaultClub]);
 
+    const adminPasswordHash = '$2a$10$Rkq/I3z3pgBiW5NVCEWVc.nuNHoyJVcFoHkDZAYMuKU.xgoRBfs4C';
+
     await client.query(
       `INSERT INTO usuarios (email, nombre, password, rol, club_id)
        VALUES ($1, $2, $3, $4, $5)
-       ON CONFLICT (email) DO NOTHING`,
-      ['admin@club.com', 'admin', '$2a$10$YourHashedPasswordHere', 'admin', actualDefaultClub]
+       ON CONFLICT (email) DO UPDATE SET
+         password = EXCLUDED.password,
+         nombre = EXCLUDED.nombre,
+         rol = EXCLUDED.rol,
+         club_id = EXCLUDED.club_id`,
+      ['admin@club.com', 'admin', adminPasswordHash, 'admin', actualDefaultClub]
     );
 
     const { rows: columns } = await client.query(
