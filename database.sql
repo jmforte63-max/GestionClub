@@ -1,6 +1,6 @@
 -- Crear base de datos
-CREATE DATABASE IF NOT EXISTS gestion_club;
-USE gestion_club;
+CREATE DATABASE IF NOT EXISTS GestionClub;
+USE GestionClub;
 
 -- Tabla de clubes
 CREATE TABLE clubes (

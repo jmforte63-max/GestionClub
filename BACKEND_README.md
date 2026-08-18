@@ -30,7 +30,7 @@ Edita `backend/.env` con tus credenciales de MySQL:
 DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=tu_password
-DB_NAME=gestion_club
+DB_NAME=GestionClub
 JWT_SECRET=tu_clave_secreta
 PORT=5000
 NODE_ENV=development

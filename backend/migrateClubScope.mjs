@@ -15,7 +15,7 @@ const rootConnection = await mysql.createConnection({
   password: process.env.DB_PASSWORD || ''
 });
 
-await rootConnection.query('CREATE DATABASE IF NOT EXISTS gestion_club');
+await rootConnection.query('CREATE DATABASE IF NOT EXISTS GestionClub');
 await rootConnection.end();
 
 const connection = await mysql.createConnection({
@@ -23,7 +23,7 @@ const connection = await mysql.createConnection({
   port: Number(process.env.DB_PORT || 3306),
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'gestion_club'
+  database: process.env.DB_NAME || 'GestionClub'
 });
 
 const ensureTable = async (table, createSql) => {
@@ -247,7 +247,7 @@ try {
 
   const [columns] = await connection.query(
     'SELECT TABLE_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND COLUMN_NAME = ?',
-    [process.env.DB_NAME || 'gestion_club', 'club_id']
+    [process.env.DB_NAME || 'GestionClub', 'club_id']
   );
 
   console.log('club_id columns:', JSON.stringify(columns, null, 2));

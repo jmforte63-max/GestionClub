@@ -56,7 +56,7 @@ source database.sql
 DB_HOST=localhost
 DB_USER=root
 DB_PASSWORD=tu_contraseña_aqui
-DB_NAME=gestion_club
+DB_NAME=GestionClub
 JWT_SECRET=tu_clave_secreta_super_segura
 PORT=5000
 NODE_ENV=development
