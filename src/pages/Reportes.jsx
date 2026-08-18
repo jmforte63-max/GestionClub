@@ -12,7 +12,7 @@ import {
 const formatearEuros = (valor) => new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(valor || 0));
 
 export default function Reportes({ selectedClub = 'all', selectedSeason = '', temporadas = [], clubName = 'Club', clubEscudo = '', onSeasonChange = null, onNavigate = null, tipoReporte = 'iva' }) {
-  const MAX_MOVIMIENTOS_MOSTRADOS = 10;
+  const MAX_MOVIMIENTOS_MOSTRADOS = 9999;
   const formatearEuros = (valor) => new Intl.NumberFormat('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(valor || 0));
   const [ingresos, setIngresos] = useState([]);
   const [egresos, setEgresos] = useState([]);
