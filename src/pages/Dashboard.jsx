@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { apiUrl } from '../api';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -73,7 +74,7 @@ export default function Dashboard({ onNavigate, selectedClub = 'all', selectedSe
         }
 
         const query = esAdminGlobal && selectedClub && selectedClub !== 'all' ? `?clubId=${encodeURIComponent(selectedClub)}` : '';
-        const response = await fetch(`http://localhost:5000/api/clubes${query}`, {
+        const response = await fetch(apiUrl(`/api/clubes${query}`), {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -109,22 +110,22 @@ export default function Dashboard({ onNavigate, selectedClub = 'all', selectedSe
         const paramsCuentas = `${params ? `${params}&` : '?'}temporada=${encodeURIComponent(temporadaActiva)}`;
 
         const [ingresosRes, egresosRes, ingresosListRes, egresosListRes, categoriaRes, cuentasRes] = await Promise.all([
-          fetch(`http://localhost:5000/api/ingresos/total${paramsConTemporada}`, {
+          fetch(apiUrl(`/api/ingresos/total${paramsConTemporada}`), {
             headers: { Authorization: `Bearer ${token}` }
           }),
-          fetch(`http://localhost:5000/api/egresos/total${paramsConTemporada}`, {
+          fetch(apiUrl(`/api/egresos/total${paramsConTemporada}`), {
             headers: { Authorization: `Bearer ${token}` }
           }),
-          fetch(`http://localhost:5000/api/ingresos${paramsConTemporada}`, {
+          fetch(apiUrl(`/api/ingresos${paramsConTemporada}`), {
             headers: { Authorization: `Bearer ${token}` }
           }),
-          fetch(`http://localhost:5000/api/egresos${paramsConTemporada}`, {
+          fetch(apiUrl(`/api/egresos${paramsConTemporada}`), {
             headers: { Authorization: `Bearer ${token}` }
           }),
-          fetch(`http://localhost:5000/api/egresos/categoria/resumen${paramsConTemporada}`, {
+          fetch(apiUrl(`/api/egresos/categoria/resumen${paramsConTemporada}`), {
             headers: { Authorization: `Bearer ${token}` }
           }),
-          fetch(`http://localhost:5000/api/cuentas-bancarias${paramsCuentas}`, {
+          fetch(apiUrl(`/api/cuentas-bancarias${paramsCuentas}`), {
             headers: { Authorization: `Bearer ${token}` }
           })
         ]);

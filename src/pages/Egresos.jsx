@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+import { apiUrl } from '../api';
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
 import '../styles/Transacciones.css';
 
@@ -95,7 +96,7 @@ export default function Egresos({ selectedClub = 'all', selectedSeason = '', onS
       }
 
       params.set('_', String(Date.now()));
-      const url = `http://localhost:5000/api/egresos?${params.toString()}`;
+      const url = apiUrl(`/api/egresos?${params.toString()}`);
       const response = await fetch(url, {
         cache: 'no-store',
         headers: { Authorization: `Bearer ${token}` }
@@ -116,7 +117,7 @@ export default function Egresos({ selectedClub = 'all', selectedSeason = '', onS
         ? `?clubId=${encodeURIComponent(selectedClub)}`
         : '';
 
-      const url = `http://localhost:5000/api/conceptos-egresos${query}${query ? '&' : '?'}_=${Date.now()}`;
+      const url = apiUrl(`/api/conceptos-egresos${query}${query ? '&' : '?'}_=${Date.now()}`);
       const response = await fetch(url, {
         cache: 'no-store',
         headers: { Authorization: `Bearer ${token}` }
@@ -137,7 +138,7 @@ export default function Egresos({ selectedClub = 'all', selectedSeason = '', onS
         ? `?clubId=${encodeURIComponent(selectedClub)}`
         : '';
 
-      const response = await fetch(`http://localhost:5000/api/cuentas-bancarias${query}`, {
+      const response = await fetch(apiUrl(`/api/cuentas-bancarias${query}`), {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await response.json();
@@ -285,7 +286,7 @@ export default function Egresos({ selectedClub = 'all', selectedSeason = '', onS
       }
 
       const temporadaGuardada = nuevoEgreso.temporada || obtenerTemporadaDesdeFecha(nuevoEgreso.fecha);
-      const response = await fetch(egresoEditandoId ? `http://localhost:5000/api/egresos/${egresoEditandoId}` : 'http://localhost:5000/api/egresos', {
+      const response = await fetch(egresoEditandoId ? apiUrl(`/api/egresos/${egresoEditandoId}`) : apiUrl('/api/egresos'), {
         method: egresoEditandoId ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -360,7 +361,7 @@ export default function Egresos({ selectedClub = 'all', selectedSeason = '', onS
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/conceptos-egresos', {
+      const response = await fetch(apiUrl('/api/conceptos-egresos'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -391,7 +392,7 @@ export default function Egresos({ selectedClub = 'all', selectedSeason = '', onS
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/conceptos-egresos/${conceptoEditandoId}`, {
+      const response = await fetch(apiUrl(`/api/conceptos-egresos/${conceptoEditandoId}`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -437,7 +438,7 @@ export default function Egresos({ selectedClub = 'all', selectedSeason = '', onS
   const eliminarConcepto = async (id) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/conceptos-egresos/${id}`, {
+      const response = await fetch(apiUrl(`/api/conceptos-egresos/${id}`), {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -454,7 +455,7 @@ export default function Egresos({ selectedClub = 'all', selectedSeason = '', onS
   const eliminarEgreso = async (id) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/egresos/${id}`, {
+      const response = await fetch(apiUrl(`/api/egresos/${id}`), {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`

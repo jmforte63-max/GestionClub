@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+import { apiUrl } from '../api';
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
 import '../styles/Transacciones.css';
 
@@ -62,7 +63,7 @@ export default function Ingresos({ selectedClub = 'all', selectedSeason = '', on
       }
 
       params.set('_', String(Date.now()));
-      const url = `http://localhost:5000/api/ingresos?${params.toString()}`;
+      const url = apiUrl(`/api/ingresos?${params.toString()}`);
       const response = await fetch(url, {
         cache: 'no-store',
         headers: {
@@ -85,7 +86,7 @@ export default function Ingresos({ selectedClub = 'all', selectedSeason = '', on
         ? `?clubId=${encodeURIComponent(selectedClub)}`
         : '';
 
-      const url = `http://localhost:5000/api/conceptos-ingresos${query}${query ? '&' : '?'}_=${Date.now()}`;
+      const url = apiUrl(`/api/conceptos-ingresos${query}${query ? '&' : '?'}_=${Date.now()}`);
       const response = await fetch(url, {
         cache: 'no-store',
         headers: {
@@ -108,7 +109,7 @@ export default function Ingresos({ selectedClub = 'all', selectedSeason = '', on
         ? `?clubId=${encodeURIComponent(selectedClub)}`
         : '';
 
-      const response = await fetch(`http://localhost:5000/api/cuentas-bancarias${params}`, {
+      const response = await fetch(apiUrl(`/api/cuentas-bancarias${params}`), {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await response.json();
@@ -209,7 +210,7 @@ export default function Ingresos({ selectedClub = 'all', selectedSeason = '', on
       };
 
       const response = ingresoEditandoId
-        ? await fetch(`http://localhost:5000/api/ingresos/${ingresoEditandoId}`, {
+        ? await fetch(apiUrl(`/api/ingresos/${ingresoEditandoId}`), {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
@@ -217,7 +218,7 @@ export default function Ingresos({ selectedClub = 'all', selectedSeason = '', on
             },
             body: JSON.stringify(payload)
           })
-        : await fetch('http://localhost:5000/api/ingresos', {
+        : await fetch(apiUrl('/api/ingresos'), {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -271,7 +272,7 @@ export default function Ingresos({ selectedClub = 'all', selectedSeason = '', on
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/conceptos-ingresos', {
+      const response = await fetch(apiUrl('/api/conceptos-ingresos'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -303,7 +304,7 @@ export default function Ingresos({ selectedClub = 'all', selectedSeason = '', on
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/conceptos-ingresos/${conceptoEditandoId}`, {
+      const response = await fetch(apiUrl(`/api/conceptos-ingresos/${conceptoEditandoId}`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -351,7 +352,7 @@ export default function Ingresos({ selectedClub = 'all', selectedSeason = '', on
   const eliminarIngreso = async (id) => {
     try {
       const token = localStorage.getItem('token');
-      await fetch(`http://localhost:5000/api/ingresos/${id}`, {
+      await fetch(apiUrl(`/api/ingresos/${id}`), {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -364,7 +365,7 @@ export default function Ingresos({ selectedClub = 'all', selectedSeason = '', on
   const eliminarConcepto = async (id) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/conceptos-ingresos/${id}`, {
+      const response = await fetch(apiUrl(`/api/conceptos-ingresos/${id}`), {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });

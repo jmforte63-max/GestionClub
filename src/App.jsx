@@ -76,7 +76,7 @@ function AppContent() {
     const cargarTemporadas = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`http://localhost:5000/api/temporadas?_=${Date.now()}`, {
+        const response = await fetch(apiUrl(`/api/temporadas?_=${Date.now()}`), {
           cache: 'no-store',
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -159,7 +159,7 @@ function AppContent() {
 
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:5000/api/clubes', {
+        const response = await fetch(apiUrl('/api/clubes'), {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -209,7 +209,7 @@ function AppContent() {
     const cargarClubes = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`http://localhost:5000/api/clubes?_=${Date.now()}`, {
+        const response = await fetch(apiUrl(`/api/clubes?_=${Date.now()}`), {
           cache: 'no-store',
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -311,7 +311,7 @@ function AppContent() {
         activo: temporadaForm.activo
       };
 
-      const response = await fetch('http://localhost:5000/api/temporadas', {
+      const response = await fetch(apiUrl('/api/temporadas'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

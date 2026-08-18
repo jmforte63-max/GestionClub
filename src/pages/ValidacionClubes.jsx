@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+import { apiUrl } from '../api';
 
 export default function ValidacionClubes() {
   const [clubesPendientes, setClubesPendientes] = useState([]);
@@ -9,7 +10,7 @@ export default function ValidacionClubes() {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/clubes/pendientes', {
+      const response = await fetch(apiUrl('/api/clubes/pendientes'), {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -34,7 +35,7 @@ export default function ValidacionClubes() {
   const validarClub = async (id, estado = 'Activo') => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/clubes/${id}/validar`, {
+      const response = await fetch(apiUrl(`/api/clubes/${id}/validar`), {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

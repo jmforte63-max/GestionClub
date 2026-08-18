@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { apiUrl } from '../api';
 
 export default function Clubes({ selectedClub = 'all' }) {
   const [clubes, setClubes] = useState([]);
@@ -41,8 +42,8 @@ export default function Clubes({ selectedClub = 'all' }) {
           ? `?clubId=${encodeURIComponent(selectedClub)}`
           : '';
 
-        console.log('Cargando clubes desde http://localhost:5000/api/clubes' + query);
-        const response = await fetch(`http://localhost:5000/api/clubes${query}`, {
+        console.log('Cargando clubes desde ' + apiUrl(`/api/clubes${query}`));
+        const response = await fetch(apiUrl(`/api/clubes${query}`), {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -103,7 +104,7 @@ export default function Clubes({ selectedClub = 'all' }) {
       console.log('Guardando club:', { nombre, ciudad, liga, estadio, presupuesto, escudo_url: escudoUrl });
 
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/clubes', {
+      const response = await fetch(apiUrl('/api/clubes'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -141,7 +142,7 @@ export default function Clubes({ selectedClub = 'all' }) {
   const updateClubStatus = async (id, nuevoEstado) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/clubes/${id}/estado`, {
+      const response = await fetch(apiUrl(`/api/clubes/${id}/estado`), {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -174,7 +175,7 @@ export default function Clubes({ selectedClub = 'all' }) {
     try {
       console.log('Eliminando club con id:', id);
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/clubes/${id}`, {
+      const response = await fetch(apiUrl(`/api/clubes/${id}`), {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -254,7 +255,7 @@ export default function Clubes({ selectedClub = 'all' }) {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/clubes/${clubId}`, {
+      const response = await fetch(apiUrl(`/api/clubes/${clubId}`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

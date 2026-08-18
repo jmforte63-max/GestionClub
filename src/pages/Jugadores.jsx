@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { apiUrl } from '../api';
 import '../styles/Jugadores.css';
 
 export default function Jugadores({ selectedClub = 'all' }) {
@@ -17,7 +18,7 @@ export default function Jugadores({ selectedClub = 'all' }) {
         ? `?clubId=${encodeURIComponent(selectedClub)}`
         : '';
 
-      const response = await fetch(`http://localhost:5000/api/jugadores${query}`, {
+      const response = await fetch(apiUrl(`/api/jugadores${query}`), {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await response.json();
@@ -37,7 +38,7 @@ export default function Jugadores({ selectedClub = 'all' }) {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/jugadores', {
+      const response = await fetch(apiUrl('/api/jugadores'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -65,7 +66,7 @@ export default function Jugadores({ selectedClub = 'all' }) {
 
     try {
       const token = localStorage.getItem('token');
-      await fetch(`http://localhost:5000/api/jugadores/${id}`, {
+      await fetch(apiUrl(`/api/jugadores/${id}`), {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });

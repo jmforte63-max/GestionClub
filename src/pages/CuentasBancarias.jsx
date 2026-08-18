@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { apiUrl } from '../api';
 import ConfirmDeleteModal from '../components/ConfirmDeleteModal';
 
 export default function CuentasBancarias({ selectedClub = 'all' }) {
@@ -23,7 +24,7 @@ export default function CuentasBancarias({ selectedClub = 'all' }) {
     try {
       const token = localStorage.getItem('token');
       const clubParam = selectedClub && selectedClub !== 'all' ? `?clubId=${encodeURIComponent(selectedClub)}` : '';
-      const response = await fetch(`http://localhost:5000/api/cuentas-bancarias${clubParam}`, {
+      const response = await fetch(apiUrl(`/api/cuentas-bancarias${clubParam}`), {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -95,8 +96,8 @@ export default function CuentasBancarias({ selectedClub = 'all' }) {
       };
       const clubParam = selectedClub && selectedClub !== 'all' ? `?clubId=${encodeURIComponent(selectedClub)}` : '';
       const url = editandoId
-        ? `http://localhost:5000/api/cuentas-bancarias/${editandoId}${clubParam}`
-        : `http://localhost:5000/api/cuentas-bancarias${clubParam}`;
+        ? apiUrl(`/api/cuentas-bancarias/${editandoId}${clubParam}`)
+        : apiUrl(`/api/cuentas-bancarias${clubParam}`);
 
       const response = await fetch(url, {
         method: editandoId ? 'PUT' : 'POST',
@@ -140,7 +141,7 @@ export default function CuentasBancarias({ selectedClub = 'all' }) {
     try {
       const token = localStorage.getItem('token');
       const clubParam = selectedClub && selectedClub !== 'all' ? `?clubId=${encodeURIComponent(selectedClub)}` : '';
-      const response = await fetch(`http://localhost:5000/api/cuentas-bancarias/${id}${clubParam}`, {
+      const response = await fetch(apiUrl(`/api/cuentas-bancarias/${id}${clubParam}`), {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });

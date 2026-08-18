@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { apiUrl } from '../api';
 import '../styles/Reportes.css';
 import {
   calcularIvaMovimiento,
@@ -48,16 +49,16 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
         }
 
         const [ingresosRes, egresosRes, conceptosIngresosRes, conceptosEgresosRes] = await Promise.all([
-          fetch(`http://localhost:5000/api/ingresos?${paramsIngresos.toString()}`, {
+          fetch(apiUrl(`/api/ingresos?${paramsIngresos.toString()}`), {
             headers: { Authorization: `Bearer ${token}` }
           }),
-          fetch(`http://localhost:5000/api/egresos?${paramsEgresos.toString()}`, {
+          fetch(apiUrl(`/api/egresos?${paramsEgresos.toString()}`), {
             headers: { Authorization: `Bearer ${token}` }
           }),
-          fetch('http://localhost:5000/api/conceptos-ingresos', {
+          fetch(apiUrl('/api/conceptos-ingresos'), {
             headers: { Authorization: `Bearer ${token}` }
           }),
-          fetch('http://localhost:5000/api/conceptos-egresos', {
+          fetch(apiUrl('/api/conceptos-egresos'), {
             headers: { Authorization: `Bearer ${token}` }
           })
         ]);
