@@ -140,7 +140,21 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
   const ivaPagado = movimientosEgresosFiltrados.reduce((total, movimiento) => total + calcularIvaEgreso(movimiento), 0);
   const ivaNeto = ivaCobrado - ivaPagado;
 
+  const calcularTotalConIva = (movimiento, conceptos) => {
+    const iva = obtenerIvaConcepto(movimiento, conceptos);
+    const base = Number(movimiento?.monto || 0);
+    const totalGuardado = Number(movimiento?.total_con_iva ?? 0);
+    return totalGuardado > 0 ? totalGuardado : base * (1 + iva / 100);
+  };
+
+  const ingresosPeriodo = ingresos.filter((movimiento) => perteneceAlPeriodo(movimiento));
+  const egresosPeriodo = egresos.filter((movimiento) => perteneceAlPeriodo(movimiento));
+  const totalIngresosPeriodo = ingresosPeriodo.reduce((total, movimiento) => total + calcularTotalConIva(movimiento, conceptosIngresos), 0);
+  const totalGastosPeriodo = egresosPeriodo.reduce((total, movimiento) => total + calcularTotalConIva(movimiento, conceptosEgresos), 0);
+  const balancePeriodo = totalIngresosPeriodo - totalGastosPeriodo;
+
   const etiquetaIva = ivaNeto >= 0 ? 'A pagar' : 'A devolver';
+  const etiquetaBalance = balancePeriodo >= 0 ? 'Balance positivo' : 'Balance negativo';
 
   const exportarCsv = () => {
     const filas = [
@@ -223,6 +237,24 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
               <div className="dato-item saldo">
                 <h3>{etiquetaIva}</h3>
                 <p className="cantidad">€{formatearEuros(Math.abs(ivaNeto))}</p>
+              </div>
+            </div>
+          </section>
+
+          <section className="reporte-seccion">
+            <h2>Balance entre ingresos y gastos</h2>
+            <div className="datos-principales">
+              <div className="dato-item ingreso">
+                <h3>Ingresos</h3>
+                <p className="cantidad">€{formatearEuros(totalIngresosPeriodo)}</p>
+              </div>
+              <div className="dato-item egreso">
+                <h3>Gastos</h3>
+                <p className="cantidad">€{formatearEuros(totalGastosPeriodo)}</p>
+              </div>
+              <div className="dato-item saldo">
+                <h3>{etiquetaBalance}</h3>
+                <p className="cantidad">€{formatearEuros(Math.abs(balancePeriodo))}</p>
               </div>
             </div>
           </section>
