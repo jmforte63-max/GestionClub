@@ -355,10 +355,18 @@
     animation: none;
   }
 
+  .reportes-grid {
+    display: block !important;
+    grid-template-columns: none !important;
+  }
+
   .reporte-seccion {
     box-shadow: none;
     border: 1px solid #d9e0e7;
     break-inside: avoid;
+    page-break-inside: avoid;
+    break-after: avoid;
+    page-break-after: avoid;
     padding: 0.8rem;
     margin-bottom: 0.8rem;
   }
