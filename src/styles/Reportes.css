@@ -369,8 +369,18 @@
     padding-bottom: 0.3rem;
   }
 
+  .datos-principales {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.4rem;
+  }
+
   .dato-item {
     padding: 0.6rem 0.4rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 90px;
   }
 
   .dato-item h3 {
