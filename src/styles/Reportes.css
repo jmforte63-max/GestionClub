@@ -353,22 +353,34 @@
 
   .reportes-container {
     animation: none;
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    overflow: visible !important;
   }
 
   .reportes-grid {
     display: block !important;
     grid-template-columns: none !important;
+    gap: 0 !important;
+    width: 100% !important;
+    overflow: visible !important;
   }
 
   .reporte-seccion {
+    display: block !important;
     box-shadow: none;
     border: 1px solid #d9e0e7;
     break-inside: avoid;
     page-break-inside: avoid;
-    break-after: avoid;
-    page-break-after: avoid;
+    break-after: auto;
+    page-break-after: auto;
     padding: 0.8rem;
     margin-bottom: 0.8rem;
+    width: 100%;
+    box-sizing: border-box;
+    float: none !important;
+    position: static !important;
   }
 
   .reporte-seccion h2 {
