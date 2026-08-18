@@ -31,6 +31,8 @@ const pool = new Pool({
   connectionTimeoutMillis: 10000
 });
 
+const nativeQuery = pool.query.bind(pool);
+
 const convertMysqlStyleParams = (sql, params = []) => {
   if (!Array.isArray(params)) {
     params = [params];
@@ -45,6 +47,29 @@ const convertMysqlStyleParams = (sql, params = []) => {
   return { text: normalizedSql, values: params };
 };
 
+const normalizeResult = (sql, result) => {
+  const rows = result.rows ?? [];
+  const fields = result.fields ?? [];
+  const isSelectQuery = /^\s*(SELECT|WITH|SHOW|DESCRIBE|EXPLAIN)\b/i.test(sql);
+
+  if (isSelectQuery) {
+    return [rows, fields];
+  }
+
+  const insertId = rows[0]?.id ?? null;
+  const normalized = {
+    affectedRows: Number(result.rowCount ?? 0),
+    insertId,
+    changedRows: Number(result.rowCount ?? 0),
+    warningStatus: 0,
+    rowCount: Number(result.rowCount ?? 0),
+    rows,
+    fields
+  };
+
+  return [normalized, fields];
+};
+
 const query = async (sql, params = []) => {
   const { text, values } = convertMysqlStyleParams(sql, params);
   let finalSql = text;
@@ -53,13 +78,8 @@ const query = async (sql, params = []) => {
     finalSql = `${text} RETURNING *`;
   }
 
-  const result = await pool.query(finalSql, values);
-  const rows = result.rows ?? [];
-  const resultArray = [rows, result.fields ?? []];
-  resultArray.insertId = rows[0]?.id ?? result.insertId ?? null;
-  resultArray.rows = rows;
-  resultArray.fields = result.fields ?? [];
-  return resultArray;
+  const result = await nativeQuery(finalSql, values);
+  return normalizeResult(text, result);
 };
 
 pool.query = query;
