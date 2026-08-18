@@ -1,4 +1,5 @@
 import pg from 'pg';
+import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -260,7 +261,7 @@ try {
     await client.query('UPDATE jugadores SET club_id = $1 WHERE club_id IS NULL OR club_id = 0', [actualDefaultClub]);
     await client.query('UPDATE eventos SET club_id = $1 WHERE club_id IS NULL OR club_id = 0', [actualDefaultClub]);
 
-    const adminPasswordHash = '$2a$10$Rkq/I3z3pgBiW5NVCEWVc.nuNHoyJVcFoHkDZAYMuKU.xgoRBfs4C';
+    const adminPasswordHash = bcrypt.hashSync('admin123', 10);
 
     await client.query(
       `INSERT INTO usuarios (email, nombre, password, rol, club_id)

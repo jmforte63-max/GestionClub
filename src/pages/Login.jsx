@@ -224,7 +224,6 @@ export default function Login() {
               ? '💡 Si eres nuevo, regístrate desde aquí con tu club.'
               : '💡 Registra tu club y crea la cuenta del administrador del club.'}
           </p>
-          <p className="hint">Ejemplo de acceso: admin@club.com / 123456</p>
         </div>
 
         <div className="login-features">

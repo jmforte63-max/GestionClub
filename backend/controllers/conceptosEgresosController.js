@@ -15,8 +15,8 @@ export const getConceptosEgresos = async (req, res) => {
     const targetClubId = selectedClubId ?? clubId;
 
     const query = selectedClubId !== null || !canSeeAllClubs(req)
-      ? 'SELECT * FROM conceptos_egresos WHERE club_id = ? AND activo = TRUE ORDER BY nombre ASC'
-      : 'SELECT * FROM conceptos_egresos WHERE activo = TRUE ORDER BY nombre ASC';
+      ? 'SELECT * FROM conceptos_egresos WHERE club_id = ? ORDER BY nombre ASC'
+      : 'SELECT * FROM conceptos_egresos ORDER BY nombre ASC';
     const params = selectedClubId !== null || !canSeeAllClubs(req) ? [targetClubId] : [];
 
     const [rows] = await pool.query(query, params);
