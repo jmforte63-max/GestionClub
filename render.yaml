@@ -14,12 +14,11 @@ services:
       - key: DB_HOST
         sync: false
       - key: DB_PORT
-        value: "3306"
+        value: "5432"
       - key: DB_USER
         sync: false
       - key: DB_PASSWORD
         sync: false
       - key: DB_NAME
-        sync: false
+        value: "GestionClub"
       - key: JWT_SECRET
-        generateValue: true
