@@ -292,12 +292,6 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
                     <span>Gastos del periodo</span>
                     <strong>{egresosPeriodo.length}</strong>
                   </div>
-                  <div className="fila-iva">
-                    <span>Periodo</span>
-                    <strong>
-                      {mesesDisponibles.find((mes) => mes.value === mesSeleccionado)?.label || mesSeleccionado || 'Mes'}
-                    </strong>
-                  </div>
                 </div>
               </section>
             </>
@@ -331,12 +325,6 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
                   <div className="fila-iva">
                     <span>Gastos del periodo</span>
                     <strong>{movimientosEgresosFiltrados.length}</strong>
-                  </div>
-                  <div className="fila-iva">
-                    <span>Periodo</span>
-                    <strong>
-                      {trimestresDisponibles.find((trim) => trim.value === trimestreSeleccionado)?.label || trimestreSeleccionado}
-                    </strong>
                   </div>
                 </div>
               </section>
