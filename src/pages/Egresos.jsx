@@ -890,6 +890,7 @@ export default function Egresos({ selectedClub = 'all', selectedSeason = '', onS
       )}
 
       <div className="form-section">
+        <h2>Listado de gastos</h2>
         <div className="listing-header">
           {!soloTraspasos && movimientoSeleccionado?.tipo === 'egreso' && (
             <button className="secondary-btn restore-movements-btn" onClick={onLimpiarMovimiento}>
@@ -927,6 +928,7 @@ export default function Egresos({ selectedClub = 'all', selectedSeason = '', onS
                     <th>Cuenta</th>
                   </>
                 )}
+                {!soloTraspasos && <th>Descripción</th>}
                 <th>Temporada</th>
                 <th>Monto</th>
                 {!soloTraspasos && <th>Impuesto</th>}
@@ -980,6 +982,7 @@ export default function Egresos({ selectedClub = 'all', selectedSeason = '', onS
                     <td>{normalizarFecha(item.fecha || item.fecha_creacion)}</td>
                     <td>{item.concepto}</td>
                     <td>{cuentaOrigen}</td>
+                    <td>{item.descripcion || '-'}</td>
                     <td>{temporadaActual}</td>
                     <td className="amount">€{Number(item.monto || 0).toLocaleString()}</td>
                     <td>{iva > 0 ? `${iva.toFixed(2)}%` : '0.00%'}</td>
