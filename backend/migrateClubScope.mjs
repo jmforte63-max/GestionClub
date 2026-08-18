@@ -243,8 +243,10 @@ try {
 
   await connection.query(
     `INSERT INTO "clubes" ("nombre", "ciudad", "liga", "estadio", "presupuesto", "estado")
-     VALUES ($1, $2, $3, $4, $5, $6)
-     ON CONFLICT ("nombre") DO NOTHING`,
+     SELECT $1, $2, $3, $4, $5, $6
+     WHERE NOT EXISTS (
+       SELECT 1 FROM "clubes" WHERE "nombre" = $1
+     )`,
     ['Real Madrid CF', 'Madrid', 'LaLiga', 'Santiago Bernabéu', 240000000, 'Activo']
   );
 
