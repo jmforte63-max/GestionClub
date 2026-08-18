@@ -18,11 +18,12 @@ window.APP_CONFIG = { apiBaseUrl }
 
 const originalFetch = window.fetch.bind(window)
 window.fetch = (input, init) => {
-  const urlString = typeof input === 'string'
-    ? input
-    : input instanceof URL
-      ? input.toString()
-      : ''
+  const urlString =
+    typeof input === 'string'
+      ? input
+      : input instanceof URL
+        ? input.toString()
+        : ''
 
   if (!urlString) {
     return originalFetch(input, init)
