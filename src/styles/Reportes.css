@@ -371,10 +371,10 @@
     display: block !important;
     box-shadow: none;
     border: 1px solid #d9e0e7;
-    break-inside: avoid;
-    page-break-inside: avoid;
-    break-after: avoid;
-    page-break-after: avoid;
+    break-inside: auto;
+    page-break-inside: auto;
+    break-after: auto;
+    page-break-after: auto;
     padding: 0.8rem;
     margin-bottom: 0.8rem;
     width: 100%;
