@@ -20,5 +20,5 @@ services:
       - key: DB_PASSWORD
         sync: false
       - key: DB_NAME
-        value: "GestionClub"
+        value: "gestionclub"
       - key: JWT_SECRET
