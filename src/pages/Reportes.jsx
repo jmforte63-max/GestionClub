@@ -178,12 +178,12 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
       : [...movimientosIngresosFiltrados, ...movimientosEgresosFiltrados];
 
     const filas = [
-      ['Tipo', 'Concepto', 'Fecha', 'Base', 'IVA'],
+      ['Tipo', 'Concepto', 'Descripción', 'Fecha', 'Base', 'IVA'],
       ...movimientosExportacion
         .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
         .map((movimiento) => {
           const esIngreso = 'cuenta_id' in movimiento || movimiento?.tipo === 'ingreso';
-          return [esIngreso ? 'Ingreso' : 'Egreso', movimiento.concepto || 'Sin concepto', movimiento.fecha, Number(movimiento.monto || 0), esIngreso ? calcularIvaIngreso(movimiento) : calcularIvaEgreso(movimiento)];
+          return [esIngreso ? 'Ingreso' : 'Egreso', movimiento.concepto || 'Sin concepto', movimiento.descripcion || movimiento.detalle || '', movimiento.fecha, Number(movimiento.monto || 0), esIngreso ? calcularIvaIngreso(movimiento) : calcularIvaEgreso(movimiento)];
         })
     ];
 
@@ -354,6 +354,7 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
                 <tr>
                   <th>Tipo</th>
                   <th>Concepto</th>
+                  <th>Descripción</th>
                   <th>Fecha</th>
                   <th>Base</th>
                   <th>{esReporteBalance ? 'Total' : 'IVA'}</th>
@@ -372,6 +373,7 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
                       <tr key={`${movimiento.id || index}-${esIngreso ? 'ing' : 'egr'}`}>
                         <td>{esIngreso ? 'Ingreso' : 'Gasto'}</td>
                         <td>{movimiento.concepto || 'Sin concepto'}</td>
+                        <td>{movimiento.descripcion || movimiento.detalle || 'Sin descripción'}</td>
                         <td>{obtenerFechaMovimiento(movimiento)}</td>
                         <td>€{formatearEuros(movimiento.monto || 0)}</td>
                         <td>€{formatearEuros(valorColumna)}</td>
