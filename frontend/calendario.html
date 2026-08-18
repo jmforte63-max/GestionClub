@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Calendario | Gestión Club</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-logo">⚽</span>
+        <h1>Gestión Club</h1>
+      </div>
+      <nav class="nav">
+        <a href="index.html">Inicio</a>
+        <a href="clubes.html">Clubes</a>
+        <a href="jugadores.html">Jugadores</a>
+        <a href="calendario.html" class="active">Calendario</a>
+        <a href="estadisticas.html">Estadísticas</a>
+      </nav>
+    </aside>
+
+    <main class="main-content page-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Planificación</p>
+          <h2>Calendario</h2>
+        </div>
+      </header>
+
+      <section class="card form-card">
+        <div id="agendaList" class="list"></div>
+      </section>
+    </main>
+
+    <script src="config.js"></script>
+    <script src="apiService.js"></script>
+    <script src="calendario.js"></script>
+  </body>
+</html>

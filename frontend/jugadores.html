@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jugadores | Gestión Club</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-logo">⚽</span>
+        <h1>Gestión Club</h1>
+      </div>
+      <nav class="nav">
+        <a href="index.html">Inicio</a>
+        <a href="clubes.html">Clubes</a>
+        <a href="jugadores.html" class="active">Jugadores</a>
+        <a href="calendario.html">Calendario</a>
+        <a href="estadisticas.html">Estadísticas</a>
+      </nav>
+    </aside>
+
+    <main class="main-content page-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Plantilla</p>
+          <h2>Jugadores</h2>
+        </div>
+      </header>
+
+      <section class="card form-card">
+        <h3>Registrar jugador</h3>
+        <form id="playerForm">
+          <div class="field">
+            <label for="clubId">Club</label>
+            <select id="clubId" name="clubId" required></select>
+          </div>
+          <div class="field">
+            <label for="nombreJugador">Nombre</label>
+            <input id="nombreJugador" name="nombreJugador" type="text" required />
+          </div>
+          <div class="field">
+            <label for="posicion">Posición</label>
+            <input id="posicion" name="posicion" type="text" required />
+          </div>
+          <div class="field">
+            <label for="edad">Edad</label>
+            <input id="edad" name="edad" type="number" required />
+          </div>
+          <div class="field">
+            <label for="nacionalidad">Nacionalidad</label>
+            <input id="nacionalidad" name="nacionalidad" type="text" required />
+          </div>
+          <div class="field">
+            <label for="valor">Valor (€)</label>
+            <input id="valor" name="valor" type="number" required />
+          </div>
+          <div class="field full">
+            <button type="submit">Guardar jugador</button>
+          </div>
+        </form>
+      </section>
+
+      <table class="table" id="playerTable">
+        <thead>
+          <tr>
+            <th>Jugador</th>
+            <th>Club</th>
+            <th>Posición</th>
+            <th>Edad</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </main>
+
+    <script src="config.js"></script>
+    <script src="apiService.js"></script>
+    <script src="jugadores.js"></script>
+  </body>
+</html>

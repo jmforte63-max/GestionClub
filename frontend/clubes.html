@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Clubes | Gestión Club</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-logo">⚽</span>
+        <h1>Gestión Club</h1>
+      </div>
+      <nav class="nav">
+        <a href="index.html">Inicio</a>
+        <a href="clubes.html" class="active">Clubes</a>
+        <a href="jugadores.html">Jugadores</a>
+        <a href="calendario.html">Calendario</a>
+        <a href="estadisticas.html">Estadísticas</a>
+      </nav>
+    </aside>
+
+    <main class="main-content page-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Administración</p>
+          <h2>Clubes</h2>
+        </div>
+      </header>
+
+      <section class="card form-card">
+        <h3>Registrar nuevo club</h3>
+        <form id="clubForm">
+          <div class="field">
+            <label for="nombre">Nombre</label>
+            <input id="nombre" name="nombre" type="text" required />
+          </div>
+          <div class="field">
+            <label for="ciudad">Ciudad</label>
+            <input id="ciudad" name="ciudad" type="text" required />
+          </div>
+          <div class="field">
+            <label for="liga">Liga</label>
+            <input id="liga" name="liga" type="text" required />
+          </div>
+          <div class="field">
+            <label for="presidente">Presidente</label>
+            <input id="presidente" name="presidente" type="text" required />
+          </div>
+          <div class="field">
+            <label for="estadio">Estadio</label>
+            <input id="estadio" name="estadio" type="text" required />
+          </div>
+          <div class="field">
+            <label for="fundacion">Fundación</label>
+            <input id="fundacion" name="fundacion" type="number" required />
+          </div>
+          <div class="field full">
+            <button type="submit">Guardar club</button>
+          </div>
+        </form>
+      </section>
+
+      <table class="table" id="clubTable">
+        <thead>
+          <tr>
+            <th>Club</th>
+            <th>Ciudad</th>
+            <th>Liga</th>
+            <th>Presidente</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </main>
+
+    <script src="config.js"></script>
+    <script src="apiService.js"></script>
+    <script src="clubes.js"></script>
+  </body>
+</html>

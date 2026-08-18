@@ -1,0 +1,205 @@
+.calendario-container {
+  animation: fadeIn 0.3s ease-in;
+}
+
+.calendario-container h1 {
+  margin-bottom: 2rem;
+  color: #2c3e50;
+  font-size: 2.5rem;
+}
+
+.form-section {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: 2rem;
+}
+
+.form-section h2 {
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+  font-size: 1.3rem;
+}
+
+.form-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
+.form-group input,
+.form-group select {
+  padding: 0.75rem;
+  border: 2px solid #ecf0f1;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+  font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.form-group button {
+  padding: 0.75rem 1.5rem;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+  font-size: 1rem;
+}
+
+.form-group button:hover {
+  background-color: #2980b9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+.eventos-list {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.eventos-list h2 {
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+  font-size: 1.3rem;
+}
+
+.eventos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.evento-card {
+  border-left: 5px solid #3498db;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s;
+  border: 1px solid #ecf0f1;
+}
+
+.evento-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.evento-card.partido {
+  border-left-color: #e74c3c;
+}
+
+.evento-card.entrenamiento {
+  border-left-color: #27ae60;
+}
+
+.evento-card.asamblea {
+  border-left-color: #f39c12;
+}
+
+.evento-card.evento-social {
+  border-left-color: #9b59b6;
+}
+
+.evento-card.otro {
+  border-left-color: #95a5a6;
+}
+
+.evento-header {
+  background-color: #ecf0f1;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #bdc3c7;
+}
+
+.evento-tipo {
+  display: inline-block;
+  background-color: #3498db;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.evento-card.partido .evento-tipo {
+  background-color: #e74c3c;
+}
+
+.evento-card.entrenamiento .evento-tipo {
+  background-color: #27ae60;
+}
+
+.evento-card.asamblea .evento-tipo {
+  background-color: #f39c12;
+}
+
+.evento-card.evento-social .evento-tipo {
+  background-color: #9b59b6;
+}
+
+.evento-card.otro .evento-tipo {
+  background-color: #95a5a6;
+}
+
+.evento-body {
+  padding: 1.5rem;
+}
+
+.evento-body h3 {
+  margin: 0 0 1rem 0;
+  color: #2c3e50;
+  font-size: 1.1rem;
+}
+
+.evento-body p {
+  margin: 0.5rem 0;
+  color: #7f8c8d;
+  font-size: 0.95rem;
+}
+
+.evento-body strong {
+  color: #2c3e50;
+}
+
+.evento-card .delete-btn {
+  width: 100%;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 0.75rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.3s;
+  font-weight: 600;
+}
+
+.evento-card .delete-btn:hover {
+  background-color: #c0392b;
+}
+
+@media (max-width: 768px) {
+  .calendario-container h1 {
+    font-size: 1.8rem;
+  }
+
+  .eventos-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-group {
+    grid-template-columns: 1fr;
+  }
+}

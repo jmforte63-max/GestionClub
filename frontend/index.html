@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gestión Club</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-logo">⚽</span>
+        <h1>Gestión Club</h1>
+      </div>
+
+      <nav class="nav">
+        <a href="index.html" class="active">Inicio</a>
+        <a href="clubes.html">Clubes</a>
+        <a href="jugadores.html">Jugadores</a>
+        <a href="calendario.html">Calendario</a>
+        <a href="estadisticas.html">Estadísticas</a>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Panel general</p>
+          <h2>Dashboard del club</h2>
+        </div>
+        <button class="primary-btn">+ Nuevo evento</button>
+      </header>
+
+      <section class="stats-grid">
+        <article class="card stat-card">
+          <span>Clubes</span>
+          <strong id="totalClubes">0</strong>
+        </article>
+        <article class="card stat-card">
+          <span>Jugadores</span>
+          <strong id="totalJugadores">0</strong>
+        </article>
+        <article class="card stat-card">
+          <span>Eventos</span>
+          <strong id="totalEventos">0</strong>
+        </article>
+        <article class="card stat-card accent">
+          <span>Próximo evento</span>
+          <strong id="proximoEvento">-</strong>
+        </article>
+      </section>
+
+      <section class="content-grid">
+        <div class="card">
+          <div class="section-header">
+            <h3>Clubes destacados</h3>
+          </div>
+          <div id="clubList" class="list"></div>
+        </div>
+
+        <div class="card">
+          <div class="section-header">
+            <h3>Plantilla principal</h3>
+          </div>
+          <div id="playerList" class="list"></div>
+        </div>
+      </section>
+    </main>
+
+    <script src="config.js"></script>
+    <script src="apiService.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
