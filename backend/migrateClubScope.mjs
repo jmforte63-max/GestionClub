@@ -15,7 +15,7 @@ const connection = new Pool({
   port: Number(process.env.DB_PORT || 5432),
   user: process.env.DB_USER || 'postgres',
   password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'GestionClub',
+  database: process.env.DB_NAME || process.env.DB_DATABASE || 'gestionclub',
   max: 10,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000,
