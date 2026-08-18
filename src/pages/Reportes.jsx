@@ -20,6 +20,7 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
   const [conceptosEgresos, setConceptosEgresos] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [trimestreSeleccionado, setTrimestreSeleccionado] = useState('01');
+  const [mesSeleccionado, setMesSeleccionado] = useState('');
 
   const temporadaActiva = selectedSeason || obtenerTemporadaDesdeFecha(new Date().toISOString().slice(0, 10));
   const temporadasDisponibles = useMemo(() => {
@@ -27,11 +28,17 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
     return nombres.length > 0 ? nombres : obtenerTemporadasDisponibles(temporadaActiva);
   }, [temporadas, temporadaActiva]);
   const trimestresDisponibles = useMemo(() => getTrimestresDeTemporada(temporadaActiva), [temporadaActiva]);
+  const mesesDisponibles = useMemo(() => obtenerMesesDeTemporada(temporadaActiva), [temporadaActiva]);
 
   useEffect(() => {
     const valoresValidos = trimestresDisponibles.map((trim) => trim.value);
     setTrimestreSeleccionado((prev) => (prev && valoresValidos.includes(prev) ? prev : '01'));
   }, [trimestresDisponibles]);
+
+  useEffect(() => {
+    const valoresValidos = mesesDisponibles.map((mes) => mes.value);
+    setMesSeleccionado((prev) => (prev && valoresValidos.includes(prev) ? prev : mesesDisponibles[0]?.value || '01'));
+  }, [mesesDisponibles]);
 
   useEffect(() => {
     const cargarMovimientos = async () => {
@@ -85,7 +92,10 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
     cargarMovimientos();
   }, [selectedClub, temporadaActiva]);
 
-  const mesesEnPeriodo = getPeriodoActual(trimestreSeleccionado, temporadaActiva);
+  const esReporteBalance = tipoReporte === 'balance';
+  const mesesEnPeriodo = esReporteBalance
+    ? [mesSeleccionado || mesesDisponibles[0]?.value || '01']
+    : getPeriodoActual(trimestreSeleccionado, temporadaActiva);
 
   const obtenerIvaConcepto = (movimiento, conceptos) => {
     const concepto = conceptos.find((item) => item.nombre?.trim().toLowerCase() === movimiento?.concepto?.trim().toLowerCase());
@@ -155,7 +165,6 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
 
   const etiquetaIva = ivaNeto >= 0 ? 'A pagar' : 'A devolver';
   const etiquetaBalance = balancePeriodo >= 0 ? 'Balance positivo' : 'Balance negativo';
-  const esReporteBalance = tipoReporte === 'balance';
 
   const exportarCsv = () => {
     const filas = [
@@ -194,7 +203,9 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
         <h1>{clubName}</h1>
         <h2>{esReporteBalance ? 'Balance financiero' : 'Cálculo de IVA'}</h2>
         <p>
-          Temporada {temporadaActiva} · {trimestresDisponibles.find((trim) => trim.value === trimestreSeleccionado)?.label || trimestreSeleccionado}
+          Temporada {temporadaActiva} · {esReporteBalance
+            ? (mesesDisponibles.find((mes) => mes.value === mesSeleccionado)?.label || 'Mes')
+            : (trimestresDisponibles.find((trim) => trim.value === trimestreSeleccionado)?.label || trimestreSeleccionado)}
         </p>
       </header>
       <h1>{esReporteBalance ? '💰 Balance financiero' : '💰 Declaración de IVA'}</h1>
@@ -207,15 +218,31 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
           ))}
         </select>
 
-        <label>Trimestre:</label>
-        <select
-          value={trimestreSeleccionado}
-          onChange={(e) => setTrimestreSeleccionado(e.target.value)}
-        >
-          {trimestresDisponibles.map((trim) => (
-            <option key={trim.value} value={trim.value}>{trim.label}</option>
-          ))}
-        </select>
+        {esReporteBalance ? (
+          <>
+            <label>Mes:</label>
+            <select
+              value={mesSeleccionado}
+              onChange={(e) => setMesSeleccionado(e.target.value)}
+            >
+              {mesesDisponibles.map((mes) => (
+                <option key={mes.value} value={mes.value}>{mes.label}</option>
+              ))}
+            </select>
+          </>
+        ) : (
+          <>
+            <label>Trimestre:</label>
+            <select
+              value={trimestreSeleccionado}
+              onChange={(e) => setTrimestreSeleccionado(e.target.value)}
+            >
+              {trimestresDisponibles.map((trim) => (
+                <option key={trim.value} value={trim.value}>{trim.label}</option>
+              ))}
+            </select>
+          </>
+        )}
       </div>
 
       {cargando ? (
@@ -258,7 +285,7 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
                   <div className="fila-iva">
                     <span>Periodo</span>
                     <strong>
-                      {trimestresDisponibles.find((trim) => trim.value === trimestreSeleccionado)?.label || trimestreSeleccionado}
+                      {mesesDisponibles.find((mes) => mes.value === mesSeleccionado)?.label || mesSeleccionado || 'Mes'}
                     </strong>
                   </div>
                 </div>
