@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { apiUrl } from '../api';
 import '../styles/Calendario.css';
 
 export default function Calendario({ selectedClub = 'all', selectedSeason = '', onSeasonChange }) {
@@ -46,7 +45,7 @@ export default function Calendario({ selectedClub = 'all', selectedSeason = '', 
       }
 
       params.set('_', String(Date.now()));
-      const response = await fetch(apiUrl(`/api/eventos?${params.toString()}`), {
+      const response = await fetch(`http://localhost:5000/api/eventos?${params.toString()}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await response.json();
@@ -67,7 +66,7 @@ export default function Calendario({ selectedClub = 'all', selectedSeason = '', 
     try {
       const token = localStorage.getItem('token');
       const temporadaGuardada = nuevoEvento.temporada || obtenerTemporadaDesdeFecha(nuevoEvento.fecha);
-      const response = await fetch(apiUrl('/api/eventos'), {
+      const response = await fetch('http://localhost:5000/api/eventos', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -107,7 +106,7 @@ export default function Calendario({ selectedClub = 'all', selectedSeason = '', 
 
     try {
       const token = localStorage.getItem('token');
-      await fetch(apiUrl(`/api/eventos/${id}`), {
+      await fetch(`http://localhost:5000/api/eventos/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       });
