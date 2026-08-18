@@ -124,6 +124,12 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
     perteneceAlPeriodo(movimiento) && tieneIva(movimiento, conceptosEgresos)
   ));
 
+  const movimientosBalanceIngresos = ingresos.filter((movimiento) => perteneceAlPeriodo(movimiento));
+  const movimientosBalanceEgresos = egresos.filter((movimiento) => perteneceAlPeriodo(movimiento));
+  const movimientosDetalle = esReporteBalance
+    ? [...movimientosBalanceIngresos.map((m) => ({ ...m, _tipo: 'ingreso' })), ...movimientosBalanceEgresos.map((m) => ({ ...m, _tipo: 'egreso' }))]
+    : [...movimientosIngresosFiltrados.map((m) => ({ ...m, _tipo: 'ingreso' })), ...movimientosEgresosFiltrados.map((m) => ({ ...m, _tipo: 'egreso' }))];
+
   const calcularIvaIngreso = (movimiento) => calcularIvaMovimiento(movimiento, obtenerIvaConcepto(movimiento, conceptosIngresos));
   const calcularIvaEgreso = (movimiento) => calcularIvaMovimiento(movimiento, obtenerIvaConcepto(movimiento, conceptosEgresos));
   const obtenerFechaMovimiento = (movimiento) => {
@@ -167,9 +173,13 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
   const etiquetaBalance = balancePeriodo >= 0 ? 'Balance positivo' : 'Balance negativo';
 
   const exportarCsv = () => {
+    const movimientosExportacion = esReporteBalance
+      ? [...movimientosBalanceIngresos, ...movimientosBalanceEgresos]
+      : [...movimientosIngresosFiltrados, ...movimientosEgresosFiltrados];
+
     const filas = [
       ['Tipo', 'Concepto', 'Fecha', 'Base', 'IVA'],
-      ...[...movimientosIngresosFiltrados, ...movimientosEgresosFiltrados]
+      ...movimientosExportacion
         .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
         .map((movimiento) => {
           const esIngreso = 'cuenta_id' in movimiento || movimiento?.tipo === 'ingreso';
@@ -345,9 +355,9 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
       {!cargando && (
         <section className="reporte-seccion full-width">
           <h2>Detalle por tipo de movimiento</h2>
-          {[...movimientosIngresosFiltrados, ...movimientosEgresosFiltrados].length > MAX_MOVIMIENTOS_MOSTRADOS && (
+          {movimientosDetalle.length > MAX_MOVIMIENTOS_MOSTRADOS && (
             <p className="info-compactada" style={{ color: '#999', fontSize: '0.8rem', marginBottom: '0.5rem' }}>
-              Mostrando {MAX_MOVIMIENTOS_MOSTRADOS} de {[...movimientosIngresosFiltrados, ...movimientosEgresosFiltrados].length} movimientos. Descargar Excel para ver todos.
+              Mostrando {MAX_MOVIMIENTOS_MOSTRADOS} de {movimientosDetalle.length} movimientos. Descargar Excel para ver todos.
             </p>
           )}
           <div className="tendencias-tabla">
@@ -358,23 +368,25 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
                   <th>Concepto</th>
                   <th>Fecha</th>
                   <th>Base</th>
-                  <th>IVA</th>
+                  <th>{esReporteBalance ? 'Total' : 'IVA'}</th>
                 </tr>
               </thead>
               <tbody>
-                {[...movimientosIngresosFiltrados.map(m => ({ ...m, _tipo: 'ingreso' })), ...movimientosEgresosFiltrados.map(m => ({ ...m, _tipo: 'egreso' }))]
+                {movimientosDetalle
                   .sort((a, b) => obtenerFechaMovimiento(b).localeCompare(obtenerFechaMovimiento(a)))
                   .slice(0, MAX_MOVIMIENTOS_MOSTRADOS)
                   .map((movimiento, index) => {
                     const esIngreso = movimiento._tipo === 'ingreso';
                     const ivaMovimiento = esIngreso ? calcularIvaIngreso(movimiento) : calcularIvaEgreso(movimiento);
+                    const totalConIva = calcularTotalConIva(movimiento, esIngreso ? conceptosIngresos : conceptosEgresos);
+                    const valorColumna = esReporteBalance ? totalConIva : ivaMovimiento;
                     return (
                       <tr key={`${movimiento.id || index}-${esIngreso ? 'ing' : 'egr'}`}>
                         <td>{esIngreso ? 'Ingreso' : 'Gasto'}</td>
                         <td>{movimiento.concepto || 'Sin concepto'}</td>
                         <td>{obtenerFechaMovimiento(movimiento)}</td>
                         <td>€{formatearEuros(movimiento.monto || 0)}</td>
-                        <td>€{formatearEuros(ivaMovimiento)}</td>
+                        <td>€{formatearEuros(valorColumna)}</td>
                       </tr>
                     );
                   })}
