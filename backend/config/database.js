@@ -10,18 +10,27 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
+const normalizeRenderHost = (host = '') => {
+  const value = String(host || 'localhost').trim();
+  if (!value || value.includes('.')) {
+    return value || 'localhost';
+  }
+
+  return `${value}.oregon-postgres.render.com`;
+};
+
 const connectionConfig = process.env.DATABASE_URL
   ? {
       connectionString: process.env.DATABASE_URL,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+      ssl: process.env.NODE_ENV === 'production' || process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
     }
   : {
-      host: process.env.DB_HOST || 'localhost',
+      host: normalizeRenderHost(process.env.DB_HOST || 'localhost'),
       port: Number(process.env.DB_PORT || 5432),
       user: process.env.DB_USER || 'postgres',
       password: process.env.DB_PASSWORD || '',
       database: process.env.DB_NAME || process.env.DB_DATABASE || 'gestionclub',
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+      ssl: process.env.NODE_ENV === 'production' || process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
     };
 
 const pool = new Pool({

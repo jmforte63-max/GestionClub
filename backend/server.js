@@ -3,8 +3,16 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import './migrateClubScope.mjs';
 import pool from './config/database.js';
+
+const initializeDatabase = async () => {
+  try {
+    await import('./migrateClubScope.mjs');
+    console.log('✅ Inicialización de base de datos completada');
+  } catch (error) {
+    console.warn('⚠️ No se pudo inicializar la BD automáticamente:', error.message);
+  }
+};
 import ingresosRoutes from './routes/ingresos.js';
 import egresosRoutes from './routes/egresos.js';
 import jugadoresRoutes from './routes/jugadores.js';
@@ -27,6 +35,8 @@ const isProduction = process.env.NODE_ENV === 'production';
 const frontendPath = isProduction
   ? path.join(__dirname, '..', 'dist')
   : path.join(__dirname, '..', 'frontend');
+
+await initializeDatabase();
 
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: '10mb' }));
