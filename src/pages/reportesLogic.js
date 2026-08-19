@@ -102,6 +102,21 @@ export const obtenerTemporadaDesdeFecha = (fecha, selectedSeason = '') => {
   return fechaObj.getMonth() >= 6 ? `${anio}/${String(anio + 1).slice(-2)}` : `${anio - 1}/${String(anio).slice(-2)}`;
 };
 
+export const calcularSaldoAcumuladoPorCuenta = (movimientos = []) => {
+  const lista = Array.isArray(movimientos) ? movimientos : [];
+  let saldoAcumulado = 0;
+
+  return lista
+    .slice()
+    .sort((a, b) => new Date(a?.fecha || a?.fecha_creacion || 0) - new Date(b?.fecha || b?.fecha_creacion || 0))
+    .map((movimiento) => {
+      const valor = Number(movimiento?.total_con_iva ?? movimiento?.monto ?? 0);
+      const esIngreso = movimiento?._tipo === 'ingreso';
+      saldoAcumulado += esIngreso ? valor : -valor;
+      return { ...movimiento, saldoAcumulado };
+    });
+};
+
 export const calcularIvaMovimiento = (movimiento, ivaConcepto = 0) => {
   const monto = Number(movimiento?.monto ?? 0);
   const totalConIva = Number(movimiento?.total_con_iva ?? 0);

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import '../styles/Reportes.css';
 import {
   calcularIvaMovimiento,
+  calcularSaldoAcumuladoPorCuenta,
   getPeriodoActual,
   getTrimestresDeTemporada,
   obtenerMesesDeTemporada,
@@ -178,15 +179,7 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
       : [...movimientosIngresosFiltrados.map((m) => ({ ...m, _tipo: 'ingreso' })), ...movimientosEgresosFiltrados.map((m) => ({ ...m, _tipo: 'egreso' }))];
 
   const movimientosDetalleConSaldo = esReporteCuenta
-    ? (() => {
-        let saldoAcumulado = 0;
-        return movimientosDetalle.map((movimiento) => {
-          const esIngreso = movimiento._tipo === 'ingreso';
-          const valor = Number(movimiento.total_con_iva ?? movimiento.monto ?? 0);
-          saldoAcumulado += esIngreso ? valor : -valor;
-          return { ...movimiento, saldoAcumulado };
-        });
-      })()
+    ? calcularSaldoAcumuladoPorCuenta(movimientosDetalle)
     : movimientosDetalle;
 
   const calcularIvaIngreso = (movimiento) => calcularIvaMovimiento(movimiento, obtenerIvaConcepto(movimiento, conceptosIngresos));
@@ -458,15 +451,17 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
         </div>
       )}
 
-      {!cargando && !esReporteCuenta && (
+      {!cargando && (
         <div className="acciones">
-          <button className="export-btn pdf-btn" onClick={imprimirPdf}>📄 Generar PDF</button>
+          {!esReporteCuenta && (
+            <button className="export-btn pdf-btn" onClick={imprimirPdf}>📄 Generar PDF</button>
+          )}
         </div>
       )}
 
-      {!cargando && !esReporteCuenta && (
+      {!cargando && (
         <section className="reporte-seccion full-width">
-          <h2>Detalle por tipo de movimiento</h2>
+          <h2>{esReporteCuenta ? 'Detalle por movimiento y saldo acumulado' : 'Detalle por tipo de movimiento'}</h2>
           {movimientosDetalle.length > MAX_MOVIMIENTOS_MOSTRADOS && (
             <p className="info-compactada" style={{ color: '#999', fontSize: '0.8rem', marginBottom: '0.5rem' }}>
               Mostrando {MAX_MOVIMIENTOS_MOSTRADOS} de {movimientosDetalle.length} movimientos.
