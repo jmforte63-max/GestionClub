@@ -21,6 +21,8 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
   const [cargando, setCargando] = useState(true);
   const [trimestreSeleccionado, setTrimestreSeleccionado] = useState('01');
   const [mesSeleccionado, setMesSeleccionado] = useState('');
+  const [cuentaSeleccionada, setCuentaSeleccionada] = useState('all');
+  const [cuentas, setCuentas] = useState([]);
 
   const temporadaActiva = selectedSeason || obtenerTemporadaDesdeFecha(new Date().toISOString().slice(0, 10));
   const temporadasDisponibles = useMemo(() => {
@@ -48,13 +50,19 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
         const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
         const paramsIngresos = new URLSearchParams();
         const paramsEgresos = new URLSearchParams();
+        const paramsCuentas = new URLSearchParams();
 
         if (usuario?.rol === 'admin' && usuario?.email === 'admin@club.com' && selectedClub && selectedClub !== 'all') {
           paramsIngresos.set('clubId', String(selectedClub));
           paramsEgresos.set('clubId', String(selectedClub));
+          paramsCuentas.set('clubId', String(selectedClub));
         }
 
-        const [ingresosRes, egresosRes, conceptosIngresosRes, conceptosEgresosRes] = await Promise.all([
+        paramsIngresos.set('temporada', temporadaActiva);
+        paramsEgresos.set('temporada', temporadaActiva);
+        paramsCuentas.set('temporada', temporadaActiva);
+
+        const [ingresosRes, egresosRes, conceptosIngresosRes, conceptosEgresosRes, cuentasRes] = await Promise.all([
           fetch(`http://localhost:5000/api/ingresos?${paramsIngresos.toString()}`, {
             headers: { Authorization: `Bearer ${token}` }
           }),
@@ -66,6 +74,9 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
           }),
           fetch('http://localhost:5000/api/conceptos-egresos', {
             headers: { Authorization: `Bearer ${token}` }
+          }),
+          fetch(`http://localhost:5000/api/cuentas-bancarias?${paramsCuentas.toString()}`, {
+            headers: { Authorization: `Bearer ${token}` }
           })
         ]);
 
@@ -73,26 +84,34 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
         const egresosData = await egresosRes.json().catch(() => []);
         const conceptosIngresosData = await conceptosIngresosRes.json().catch(() => []);
         const conceptosEgresosData = await conceptosEgresosRes.json().catch(() => []);
+        const cuentasData = await cuentasRes.json().catch(() => []);
 
         setIngresos(Array.isArray(ingresosData) ? ingresosData : []);
         setEgresos(Array.isArray(egresosData) ? egresosData : []);
         setConceptosIngresos(Array.isArray(conceptosIngresosData) ? conceptosIngresosData : []);
         setConceptosEgresos(Array.isArray(conceptosEgresosData) ? conceptosEgresosData : []);
+        setCuentas(Array.isArray(cuentasData) ? cuentasData : []);
+
+        if (tipoReporte === 'cuenta' && Array.isArray(cuentasData) && cuentasData.length > 0 && cuentaSeleccionada === 'all') {
+          setCuentaSeleccionada(String(cuentasData[0].id));
+        }
       } catch (error) {
-        console.error('Error al cargar movimientos para el IVA:', error);
+        console.error('Error al cargar movimientos para el reporte:', error);
         setIngresos([]);
         setEgresos([]);
         setConceptosIngresos([]);
         setConceptosEgresos([]);
+        setCuentas([]);
       } finally {
         setCargando(false);
       }
     };
 
     cargarMovimientos();
-  }, [selectedClub, temporadaActiva]);
+  }, [selectedClub, temporadaActiva, tipoReporte]);
 
   const esReporteBalance = tipoReporte === 'balance';
+  const esReporteCuenta = tipoReporte === 'cuenta';
   const mesesEnPeriodo = esReporteBalance
     ? [mesSeleccionado || mesesDisponibles[0]?.value || '01']
     : getPeriodoActual(trimestreSeleccionado, temporadaActiva);
@@ -126,9 +145,25 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
 
   const movimientosBalanceIngresos = ingresos.filter((movimiento) => perteneceAlPeriodo(movimiento));
   const movimientosBalanceEgresos = egresos.filter((movimiento) => perteneceAlPeriodo(movimiento));
+
+  const movimientosPorCuenta = (() => {
+    if (!esReporteCuenta) return [];
+
+    const cuentaId = Number(cuentaSeleccionada);
+    const ingresosCuenta = ingresos.filter((movimiento) => Number(movimiento.cuenta_id ?? 0) === cuentaId && perteneceAlPeriodo(movimiento));
+    const egresosCuenta = egresos.filter((movimiento) => Number(movimiento.cuenta_id ?? 0) === cuentaId && perteneceAlPeriodo(movimiento));
+
+    return [
+      ...ingresosCuenta.map((m) => ({ ...m, _tipo: 'ingreso' })),
+      ...egresosCuenta.map((m) => ({ ...m, _tipo: 'egreso' }))
+    ];
+  })();
+
   const movimientosDetalle = esReporteBalance
     ? [...movimientosBalanceIngresos.map((m) => ({ ...m, _tipo: 'ingreso' })), ...movimientosBalanceEgresos.map((m) => ({ ...m, _tipo: 'egreso' }))]
-    : [...movimientosIngresosFiltrados.map((m) => ({ ...m, _tipo: 'ingreso' })), ...movimientosEgresosFiltrados.map((m) => ({ ...m, _tipo: 'egreso' }))];
+    : esReporteCuenta
+      ? movimientosPorCuenta
+      : [...movimientosIngresosFiltrados.map((m) => ({ ...m, _tipo: 'ingreso' })), ...movimientosEgresosFiltrados.map((m) => ({ ...m, _tipo: 'egreso' }))];
 
   const calcularIvaIngreso = (movimiento) => calcularIvaMovimiento(movimiento, obtenerIvaConcepto(movimiento, conceptosIngresos));
   const calcularIvaEgreso = (movimiento) => calcularIvaMovimiento(movimiento, obtenerIvaConcepto(movimiento, conceptosEgresos));
@@ -155,6 +190,17 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
   const ivaCobrado = movimientosIngresosFiltrados.reduce((total, movimiento) => total + calcularIvaIngreso(movimiento), 0);
   const ivaPagado = movimientosEgresosFiltrados.reduce((total, movimiento) => total + calcularIvaEgreso(movimiento), 0);
   const ivaNeto = ivaCobrado - ivaPagado;
+
+  const cuentaActiva = cuentas.find((cuenta) => String(cuenta.id) === String(cuentaSeleccionada)) || null;
+  const cuentaIngresos = esReporteCuenta
+    ? ingresos.filter((movimiento) => Number(movimiento.cuenta_id ?? 0) === Number(cuentaSeleccionada) && perteneceAlPeriodo(movimiento))
+    : [];
+  const cuentaEgresos = esReporteCuenta
+    ? egresos.filter((movimiento) => Number(movimiento.cuenta_id ?? 0) === Number(cuentaSeleccionada) && perteneceAlPeriodo(movimiento))
+    : [];
+  const totalIngresosCuenta = cuentaIngresos.reduce((total, movimiento) => total + Number(movimiento.total_con_iva ?? movimiento.monto ?? 0), 0);
+  const totalEgresosCuenta = cuentaEgresos.reduce((total, movimiento) => total + Number(movimiento.total_con_iva ?? movimiento.monto ?? 0), 0);
+  const saldoCuentaReporte = totalIngresosCuenta - totalEgresosCuenta;
 
   const calcularTotalConIva = (movimiento, conceptos) => {
     const iva = obtenerIvaConcepto(movimiento, conceptos);
@@ -211,14 +257,16 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
       <header className="reporte-encabezado-impresion">
         {clubEscudo && <img src={clubEscudo} alt="Escudo" className="reporte-escudo" />}
         <h1>{clubName}</h1>
-        <h2>{esReporteBalance ? 'Balance financiero' : 'Cálculo de IVA'}</h2>
+        <h2>{esReporteBalance ? 'Balance financiero' : esReporteCuenta ? 'Movimientos por cuenta' : 'Cálculo de IVA'}</h2>
         <p>
           Temporada {temporadaActiva} · {esReporteBalance
             ? (mesesDisponibles.find((mes) => mes.value === mesSeleccionado)?.label || 'Mes')
-            : (trimestresDisponibles.find((trim) => trim.value === trimestreSeleccionado)?.label || trimestreSeleccionado)}
+            : esReporteCuenta
+              ? (cuentaActiva ? cuentaActiva.nombre : 'Cuenta seleccionada')
+              : (trimestresDisponibles.find((trim) => trim.value === trimestreSeleccionado)?.label || trimestreSeleccionado)}
         </p>
       </header>
-      <h1>{esReporteBalance ? '💰 Balance financiero' : '💰 Declaración de IVA'}</h1>
+      <h1>{esReporteBalance ? '💰 Balance financiero' : esReporteCuenta ? '🏦 Movimientos por cuenta' : '💰 Declaración de IVA'}</h1>
 
       <div className="mes-selector rango-iva">
         <label>Temporada:</label>
@@ -228,7 +276,16 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
           ))}
         </select>
 
-        {esReporteBalance ? (
+        {esReporteCuenta ? (
+          <>
+            <label>Cuenta:</label>
+            <select value={cuentaSeleccionada} onChange={(e) => setCuentaSeleccionada(e.target.value)}>
+              {cuentas.map((cuenta) => (
+                <option key={cuenta.id} value={String(cuenta.id)}>{cuenta.nombre}</option>
+              ))}
+            </select>
+          </>
+        ) : esReporteBalance ? (
           <>
             <label>Mes:</label>
             <select
@@ -261,7 +318,41 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
         </div>
       ) : (
         <div className="reportes-grid">
-          {esReporteBalance ? (
+          {esReporteCuenta ? (
+            <>
+              <section className="reporte-seccion">
+                <h2>Saldo de la cuenta</h2>
+                <div className="datos-principales">
+                  <div className="dato-item ingreso">
+                    <h3>Ingresos</h3>
+                    <p className="cantidad">€{formatearEuros(totalIngresosCuenta)}</p>
+                  </div>
+                  <div className="dato-item egreso">
+                    <h3>Gastos</h3>
+                    <p className="cantidad">€{formatearEuros(totalEgresosCuenta)}</p>
+                  </div>
+                  <div className="dato-item saldo">
+                    <h3>Saldo</h3>
+                    <p className="cantidad">€{formatearEuros(Math.abs(saldoCuentaReporte))}</p>
+                  </div>
+                </div>
+              </section>
+
+              <section className="reporte-seccion">
+                <h2>Movimientos de la cuenta</h2>
+                <div className="resumen-iva">
+                  <div className="fila-iva">
+                    <span>Ingresos del periodo</span>
+                    <strong>{cuentaIngresos.length}</strong>
+                  </div>
+                  <div className="fila-iva">
+                    <span>Gastos del periodo</span>
+                    <strong>{cuentaEgresos.length}</strong>
+                  </div>
+                </div>
+              </section>
+            </>
+          ) : esReporteBalance ? (
             <>
               <section className="reporte-seccion">
                 <h2>Balance entre ingresos y gastos</h2>

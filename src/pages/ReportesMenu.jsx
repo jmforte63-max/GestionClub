@@ -27,6 +27,15 @@ export default function ReportesMenu({ onNavigate }) {
           </span>
           <span className="reporte-card-arrow">→</span>
         </button>
+
+        <button className="reporte-card reporte-card-cuenta" onClick={() => onNavigate('reporte-cuenta')}>
+          <span className="reporte-card-icon">🏦</span>
+          <span className="reporte-card-content">
+            <strong>Movimientos por cuenta</strong>
+            <small>Analiza ingresos y gastos de una cuenta concreta.</small>
+          </span>
+          <span className="reporte-card-arrow">→</span>
+        </button>
       </div>
     </div>
   );
