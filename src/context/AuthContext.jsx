@@ -4,18 +4,7 @@ export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [usuario, setUsuario] = useState(null);
-  const [cargando, setCargando] = useState(true);
-
-  useEffect(() => {
-    const usuarioGuardado = localStorage.getItem('usuario');
-    const tokenGuardado = localStorage.getItem('token');
-
-    if (usuarioGuardado && tokenGuardado) {
-      setUsuario(JSON.parse(usuarioGuardado));
-    }
-
-    setCargando(false);
-  }, []);
+  const [cargando, setCargando] = useState(false);
 
   const guardarSesion = (usuarioLogueado, token) => {
     localStorage.setItem('usuario', JSON.stringify(usuarioLogueado));
