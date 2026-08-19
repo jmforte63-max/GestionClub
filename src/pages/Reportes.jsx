@@ -335,7 +335,6 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
 
       {!cargando && (
         <div className="acciones">
-          <button className="export-btn excel-btn" onClick={exportarCsv}>📊 Descargar Excel</button>
           <button className="export-btn pdf-btn" onClick={imprimirPdf}>📄 Generar PDF</button>
         </div>
       )}
@@ -345,7 +344,7 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
           <h2>Detalle por tipo de movimiento</h2>
           {movimientosDetalle.length > MAX_MOVIMIENTOS_MOSTRADOS && (
             <p className="info-compactada" style={{ color: '#999', fontSize: '0.8rem', marginBottom: '0.5rem' }}>
-              Mostrando {MAX_MOVIMIENTOS_MOSTRADOS} de {movimientosDetalle.length} movimientos. Descargar Excel para ver todos.
+              Mostrando {MAX_MOVIMIENTOS_MOSTRADOS} de {movimientosDetalle.length} movimientos.
             </p>
           )}
           <div className="tendencias-tabla">
