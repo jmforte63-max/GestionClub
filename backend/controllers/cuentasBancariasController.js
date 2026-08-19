@@ -60,28 +60,21 @@ export const getCuentasBancarias = async (req, res) => {
       [targetClubId, temporada, idsCuentas]
     );
 
-    const cuentasConMovimientos = new Set([
-      ...ingresosRows.map((movimiento) => Number(movimiento.cuenta_id)),
-      ...egresosRows.map((movimiento) => Number(movimiento.cuenta_id))
-    ]);
+    const cuentasConSaldo = cuentasRows.map((cuenta) => {
+      const saldoCalculado = calcularSaldoCuenta(
+        cuenta,
+        ingresosRows.filter((movimiento) => Number(movimiento.cuenta_id) === Number(cuenta.id)),
+        egresosRows.filter((movimiento) => Number(movimiento.cuenta_id) === Number(cuenta.id)),
+        temporada
+      );
 
-    const cuentasFiltradas = cuentasRows
-      .filter((cuenta) => cuentasConMovimientos.has(Number(cuenta.id)))
-      .map((cuenta) => {
-        const saldoCalculado = calcularSaldoCuenta(
-          cuenta,
-          ingresosRows.filter((movimiento) => Number(movimiento.cuenta_id) === Number(cuenta.id)),
-          egresosRows.filter((movimiento) => Number(movimiento.cuenta_id) === Number(cuenta.id)),
-          temporada
-        );
+      return {
+        ...cuenta,
+        saldo: Number(saldoCalculado || 0)
+      };
+    });
 
-        return {
-          ...cuenta,
-          saldo: Number(saldoCalculado || 0)
-        };
-      });
-
-    return res.json(cuentasFiltradas);
+    return res.json(cuentasConSaldo);
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
