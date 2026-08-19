@@ -253,6 +253,8 @@ try {
       banco VARCHAR(255) NOT NULL,
       numero_cuenta VARCHAR(100) NOT NULL,
       iban VARCHAR(100),
+      saldo_inicial DECIMAL(12,2) NOT NULL DEFAULT 0.00,
+      fecha_saldo_inicial DATE NOT NULL DEFAULT CURRENT_DATE,
       saldo DECIMAL(12,2) NOT NULL DEFAULT 0.00,
       activo BOOLEAN DEFAULT TRUE,
       fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -260,6 +262,15 @@ try {
     await safeQuery(client, 'index:uk_cuentas_bancarias', `CREATE UNIQUE INDEX IF NOT EXISTS uk_cuentas_bancarias_club_nombre ON cuentas_bancarias (club_id, nombre)`);
 
     await ensureColumn(client, 'cuentas_bancarias', 'tipo', 'VARCHAR(30) NOT NULL DEFAULT \'Banco\'');
+    await ensureColumn(client, 'cuentas_bancarias', 'saldo_inicial', 'DECIMAL(12,2) NOT NULL DEFAULT 0.00');
+    await ensureColumn(client, 'cuentas_bancarias', 'fecha_saldo_inicial', 'DATE NOT NULL DEFAULT CURRENT_DATE');
+    await safeQuery(client, 'fix:cuentas_bancarias.saldo_inicial', `UPDATE cuentas_bancarias
+      SET saldo_inicial = saldo
+      WHERE saldo_inicial = 0
+        AND saldo <> 0
+        AND fecha_saldo_inicial = CURRENT_DATE
+        AND fecha_creacion::date < CURRENT_DATE`);
+    await safeQuery(client, 'fix:cuentas_bancarias.fecha_saldo_inicial', 'UPDATE cuentas_bancarias SET fecha_saldo_inicial = fecha_creacion::date WHERE fecha_saldo_inicial IS NULL');
     await ensureColumn(client, 'eventos', 'temporada', `VARCHAR(20) NOT NULL DEFAULT '${temporadaPredeterminada}'`);
     await safeQuery(client, 'fix:eventos.temporada', `UPDATE eventos SET temporada = $1 WHERE temporada IS NULL OR temporada = ''`, [temporadaPredeterminada]);
     await ensureColumn(client, 'usuarios', 'club_id', 'INTEGER');

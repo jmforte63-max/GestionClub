@@ -14,7 +14,7 @@ export default function CuentasBancarias({ selectedClub = 'all' }) {
     banco: '',
     numero_cuenta: '',
     iban: '',
-    saldo: '0',
+    saldo_inicial: '0',
     activo: true,
   });
 
@@ -60,7 +60,7 @@ export default function CuentasBancarias({ selectedClub = 'all' }) {
   };
 
   const limpiarFormulario = () => {
-    setForm({ nombre: '', tipo: 'Banco', banco: '', numero_cuenta: '', iban: '', saldo: '0', activo: true });
+    setForm({ nombre: '', tipo: 'Banco', banco: '', numero_cuenta: '', iban: '', saldo_inicial: '0', activo: true });
     setEditandoId(null);
   };
 
@@ -90,7 +90,7 @@ export default function CuentasBancarias({ selectedClub = 'all' }) {
         banco,
         numero_cuenta: numeroCuenta,
         iban: form.iban.trim(),
-        saldo: Number(form.saldo || 0),
+        saldo_inicial: Number(form.saldo_inicial || 0),
         activo: Boolean(form.activo),
       };
       const clubParam = selectedClub && selectedClub !== 'all' ? `?clubId=${encodeURIComponent(selectedClub)}` : '';
@@ -129,7 +129,7 @@ export default function CuentasBancarias({ selectedClub = 'all' }) {
       banco: cuenta.banco || '',
       numero_cuenta: cuenta.numero_cuenta || '',
       iban: cuenta.iban || '',
-      saldo: String(Number(cuenta.saldo ?? 0).toFixed(2)),
+      saldo_inicial: String(Number(cuenta.saldo_inicial ?? cuenta.saldo ?? 0).toFixed(2)),
       activo: Boolean(cuenta.activo),
     });
     setError('');
@@ -240,12 +240,12 @@ export default function CuentasBancarias({ selectedClub = 'all' }) {
           </label>
 
           <label className="account-field">
-            <span>Saldo</span>
+            <span>Saldo inicial</span>
             <input
               type="number"
               step="0.01"
-              name="saldo"
-              value={form.saldo}
+              name="saldo_inicial"
+              value={form.saldo_inicial}
               onChange={handleChange}
             />
           </label>
@@ -287,7 +287,9 @@ export default function CuentasBancarias({ selectedClub = 'all' }) {
                   <th>Entidad</th>
                   <th>Número</th>
                   <th>IBAN</th>
+                  <th>Saldo inicial</th>
                   <th>Saldo</th>
+                  <th>Fecha saldo inicial</th>
                   <th>Estado</th>
                   <th>Acciones</th>
                 </tr>
@@ -295,7 +297,7 @@ export default function CuentasBancarias({ selectedClub = 'all' }) {
               <tbody>
                 {cuentas.length === 0 ? (
                   <tr>
-                    <td colSpan="8">No hay cuentas ni tarjetas registradas.</td>
+                    <td colSpan="9">No hay cuentas ni tarjetas registradas.</td>
                   </tr>
                 ) : (
                   cuentas.map((cuenta) => (
@@ -304,7 +306,9 @@ export default function CuentasBancarias({ selectedClub = 'all' }) {
                       <td>{cuenta.banco}</td>
                       <td>{cuenta.numero_cuenta}</td>
                       <td>{cuenta.iban || '—'}</td>
+                      <td>€{Number(cuenta.saldo_inicial ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                       <td>€{Number(cuenta.saldo || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                      <td>{cuenta.fecha_saldo_inicial || cuenta.fecha_creacion?.slice?.(0, 10) || '—'}</td>
                       <td>{cuenta.activo ? 'Activa' : 'Inactiva'}</td>
                       <td>
                         <div className="inline-actions">
