@@ -1,5 +1,4 @@
 import pool from '../config/database.js';
-import { calcularSaldoCuenta } from '../utils/calcularSaldoCuenta.js';
 
 const canSeeAllClubs = (req) => req.user?.rol === 'admin' && String(req.user?.email || '').trim().toLowerCase() === 'admin@club.com';
 const getClubId = (req) => Number(req.user?.club_id ?? 0);
@@ -41,40 +40,7 @@ export const getCuentasBancarias = async (req, res) => {
       [targetClubId]
     );
 
-    if (!temporada) {
-      return res.json(cuentasRows);
-    }
-
-    const idsCuentas = cuentasRows.map((cuenta) => cuenta.id);
-    if (!idsCuentas.length) {
-      return res.json([]);
-    }
-
-    const [ingresosRows] = await pool.query(
-      'SELECT cuenta_id, total_con_iva, monto, temporada FROM ingresos WHERE club_id = ? AND temporada = ? AND cuenta_id IN (?)',
-      [targetClubId, temporada, idsCuentas]
-    );
-
-    const [egresosRows] = await pool.query(
-      'SELECT cuenta_id, total_con_iva, monto, temporada FROM egresos WHERE club_id = ? AND temporada = ? AND cuenta_id IN (?)',
-      [targetClubId, temporada, idsCuentas]
-    );
-
-    const cuentasConSaldo = cuentasRows.map((cuenta) => {
-      const saldoCalculado = calcularSaldoCuenta(
-        cuenta,
-        ingresosRows.filter((movimiento) => Number(movimiento.cuenta_id) === Number(cuenta.id)),
-        egresosRows.filter((movimiento) => Number(movimiento.cuenta_id) === Number(cuenta.id)),
-        temporada
-      );
-
-      return {
-        ...cuenta,
-        saldo: Number(saldoCalculado || 0)
-      };
-    });
-
-    return res.json(cuentasConSaldo);
+    return res.json(cuentasRows);
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
