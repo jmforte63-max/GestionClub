@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Dashboard from './pages/Dashboard';
@@ -18,6 +19,9 @@ import { useAuth } from './hooks/useAuth';
 import './App.css';
 
 function AppContent() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const obtenerTemporadaPorDefecto = () => {
     const fechaActual = new Date();
     const anioActual = fechaActual.getFullYear();
@@ -42,7 +46,6 @@ function AppContent() {
     ];
   };
 
-  const [paginaActual, setPaginaActual] = useState('dashboard');
   const [movimientoSeleccionado, setMovimientoSeleccionado] = useState(null);
   const [menuAdminAbierto, setMenuAdminAbierto] = useState(false);
   const [perfilAbierto, setPerfilAbierto] = useState(false);
@@ -351,19 +354,35 @@ function AppContent() {
     }
   };
 
-  const renderPagina = () => {
-    const navegarA = (pagina, movimiento = null) => {
-      setMovimientoSeleccionado(movimiento);
-      setPaginaActual(pagina);
-    };
+  const rutaPorPagina = {
+    dashboard: '/dashboard',
+    clubes: '/clubes',
+    'validacion-clubes': '/validacion-clubes',
+    jugadores: '/jugadores',
+    ingresos: '/ingresos',
+    egresos: '/egresos',
+    traspasos: '/traspasos',
+    movimientos: '/movimientos',
+    calendario: '/calendario',
+    reportes: '/reportes',
+    'reporte-iva': '/reporte-iva',
+    'reporte-balance': '/reporte-balance',
+    'cuentas-bancarias': '/cuentas-bancarias'
+  };
 
-    switch(paginaActual) {
+  const navegarA = (pagina, movimiento = null) => {
+    setMovimientoSeleccionado(movimiento);
+    navigate(rutaPorPagina[pagina] || '/dashboard');
+  };
+
+  const renderPagina = (pagina) => {
+    switch (pagina) {
       case 'dashboard':
         return <Dashboard onNavigate={navegarA} selectedClub={clubSeleccionado} selectedSeason={temporadaActual} temporadas={temporadas} />;
       case 'clubes':
-        return esAdminGlobal ? <Clubes selectedClub={clubSeleccionado} selectedSeason={temporadaActual} /> : <Dashboard onNavigate={setPaginaActual} selectedClub={clubSeleccionado} selectedSeason={temporadaActual} />;
+        return esAdminGlobal ? <Clubes selectedClub={clubSeleccionado} selectedSeason={temporadaActual} /> : <Dashboard onNavigate={navegarA} selectedClub={clubSeleccionado} selectedSeason={temporadaActual} />;
       case 'validacion-clubes':
-        return esAdminGlobal ? <ValidacionClubes selectedSeason={temporadaActual} /> : <Dashboard onNavigate={setPaginaActual} selectedClub={clubSeleccionado} selectedSeason={temporadaActual} />;
+        return esAdminGlobal ? <ValidacionClubes selectedSeason={temporadaActual} /> : <Dashboard onNavigate={navegarA} selectedClub={clubSeleccionado} selectedSeason={temporadaActual} />;
       case 'jugadores':
         return <Jugadores selectedClub={clubSeleccionado} selectedSeason={temporadaActual} />;
       case 'ingresos':
@@ -373,21 +392,42 @@ function AppContent() {
       case 'traspasos':
         return <Egresos selectedClub={clubSeleccionado} selectedSeason={temporadaActual} onSeasonChange={setTemporadaActual} movimientoSeleccionado={movimientoSeleccionado} onLimpiarMovimiento={() => setMovimientoSeleccionado(null)} soloTraspasos />;
       case 'movimientos':
-        return <MovimientosMenu onNavigate={setPaginaActual} />;
+        return <MovimientosMenu onNavigate={navegarA} />;
       case 'calendario':
         return <Calendario selectedClub={clubSeleccionado} selectedSeason={temporadaActual} onSeasonChange={setTemporadaActual} />;
       case 'reportes':
-        return <ReportesMenu onNavigate={setPaginaActual} />;
+        return <ReportesMenu onNavigate={navegarA} />;
       case 'reporte-iva':
-        return <Reportes tipoReporte="iva" selectedClub={clubSeleccionado} selectedSeason={temporadaActual} temporadas={temporadas} clubName={clubActivo?.nombre || 'Todos los clubs'} clubEscudo={clubActivo?.escudo_url} onSeasonChange={setTemporadaActual} onNavigate={setPaginaActual} />;
+        return <Reportes tipoReporte="iva" selectedClub={clubSeleccionado} selectedSeason={temporadaActual} temporadas={temporadas} clubName={clubActivo?.nombre || 'Todos los clubs'} clubEscudo={clubActivo?.escudo_url} onSeasonChange={setTemporadaActual} onNavigate={navegarA} />;
       case 'reporte-balance':
-        return <Reportes tipoReporte="balance" selectedClub={clubSeleccionado} selectedSeason={temporadaActual} temporadas={temporadas} clubName={clubActivo?.nombre || 'Todos los clubs'} clubEscudo={clubActivo?.escudo_url} onSeasonChange={setTemporadaActual} onNavigate={setPaginaActual} />;
+        return <Reportes tipoReporte="balance" selectedClub={clubSeleccionado} selectedSeason={temporadaActual} temporadas={temporadas} clubName={clubActivo?.nombre || 'Todos los clubs'} clubEscudo={clubActivo?.escudo_url} onSeasonChange={setTemporadaActual} onNavigate={navegarA} />;
       case 'cuentas-bancarias':
         return <CuentasBancarias selectedClub={clubSeleccionado} selectedSeason={temporadaActual} />;
       default:
-        return <Dashboard onNavigate={setPaginaActual} selectedClub={clubSeleccionado} selectedSeason={temporadaActual} />;
+        return <Dashboard onNavigate={navegarA} selectedClub={clubSeleccionado} selectedSeason={temporadaActual} />;
     }
   };
+
+  const paginaActual = (() => {
+    switch (location.pathname) {
+      case '/clubes': return 'clubes';
+      case '/validacion-clubes': return 'validacion-clubes';
+      case '/jugadores': return 'jugadores';
+      case '/ingresos': return 'ingresos';
+      case '/egresos': return 'egresos';
+      case '/traspasos': return 'traspasos';
+      case '/movimientos': return 'movimientos';
+      case '/calendario': return 'calendario';
+      case '/reportes': return 'reportes';
+      case '/reporte-iva': return 'reporte-iva';
+      case '/reporte-balance': return 'reporte-balance';
+      case '/cuentas-bancarias': return 'cuentas-bancarias';
+      case '/dashboard':
+      case '/':
+      default:
+        return 'dashboard';
+    }
+  })();
 
   return (
     <div className="app">
@@ -523,7 +563,7 @@ function AppContent() {
 
                   {esAdminGlobal && (
                     <button onClick={() => {
-                      setPaginaActual('validacion-clubes');
+                      navigate('/validacion-clubes');
                       setMenuAdminAbierto(false);
                     }}>
                       ✅ Validar clubs
@@ -644,7 +684,7 @@ function AppContent() {
           <li>
             <button 
               className={`nav-link ${paginaActual === 'dashboard' ? 'active' : ''}`}
-              onClick={() => setPaginaActual('dashboard')}
+              onClick={() => navigate('/dashboard')}
             >
               📊 Dashboard
             </button>
@@ -653,7 +693,7 @@ function AppContent() {
             <li>
               <button 
                 className={`nav-link ${paginaActual === 'clubes' ? 'active' : ''}`}
-                onClick={() => setPaginaActual('clubes')}
+                onClick={() => navigate('/clubes')}
               >
                 🏟️ Clubes
               </button>
@@ -662,7 +702,7 @@ function AppContent() {
           <li>
             <button 
               className={`nav-link ${paginaActual === 'jugadores' ? 'active' : ''}`}
-              onClick={() => setPaginaActual('jugadores')}
+              onClick={() => navigate('/jugadores')}
             >
               👥 Jugadores
             </button>
@@ -670,23 +710,23 @@ function AppContent() {
           <li>
             <button 
               className={`nav-link ${paginaActual === 'calendario' ? 'active' : ''}`}
-              onClick={() => setPaginaActual('calendario')}
+              onClick={() => navigate('/calendario')}
             >
               📅 Calendario
             </button>
           </li>
           <li>
             <button 
-              className={`nav-link ${paginaActual === 'movimientos' || paginaActual === 'ingresos' || paginaActual === 'egresos' || paginaActual === 'traspasos' ? 'active' : ''}`}
-              onClick={() => setPaginaActual('movimientos')}
+              className={`nav-link ${['movimientos', 'ingresos', 'egresos', 'traspasos'].includes(paginaActual) ? 'active' : ''}`}
+              onClick={() => navigate('/movimientos')}
             >
               💳 Movimientos
             </button>
           </li>
           <li>
             <button 
-              className={`nav-link ${paginaActual === 'reportes' || paginaActual === 'reporte-iva' ? 'active' : ''}`}
-              onClick={() => setPaginaActual('reportes')}
+              className={`nav-link ${['reportes', 'reporte-iva', 'reporte-balance'].includes(paginaActual) ? 'active' : ''}`}
+              onClick={() => navigate('/reportes')}
             >
               📈 Reportes
             </button>
@@ -694,7 +734,7 @@ function AppContent() {
           <li>
             <button 
               className={`nav-link ${paginaActual === 'cuentas-bancarias' ? 'active' : ''}`}
-              onClick={() => setPaginaActual('cuentas-bancarias')}
+              onClick={() => navigate('/cuentas-bancarias')}
             >
               🏦 Cuentas
             </button>
@@ -703,7 +743,23 @@ function AppContent() {
       </nav>
 
       <main className="main-content">
-        {renderPagina()}
+        <Routes>
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/dashboard" element={renderPagina('dashboard')} />
+          <Route path="/clubes" element={renderPagina('clubes')} />
+          <Route path="/validacion-clubes" element={renderPagina('validacion-clubes')} />
+          <Route path="/jugadores" element={renderPagina('jugadores')} />
+          <Route path="/ingresos" element={renderPagina('ingresos')} />
+          <Route path="/egresos" element={renderPagina('egresos')} />
+          <Route path="/traspasos" element={renderPagina('traspasos')} />
+          <Route path="/movimientos" element={renderPagina('movimientos')} />
+          <Route path="/calendario" element={renderPagina('calendario')} />
+          <Route path="/reportes" element={renderPagina('reportes')} />
+          <Route path="/reporte-iva" element={renderPagina('reporte-iva')} />
+          <Route path="/reporte-balance" element={renderPagina('reporte-balance')} />
+          <Route path="/cuentas-bancarias" element={renderPagina('cuentas-bancarias')} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
       </main>
 
       <footer className="footer">

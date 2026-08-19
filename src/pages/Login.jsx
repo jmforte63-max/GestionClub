@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { toast } from 'react-toastify';
 import '../styles/Login.css';
@@ -16,6 +17,7 @@ const initialForm = {
 };
 
 export default function Login() {
+  const navigate = useNavigate();
   const { login, register } = useAuth();
   const [modo, setModo] = useState('login');
   const [form, setForm] = useState(initialForm);
@@ -36,6 +38,7 @@ export default function Login() {
       resultado = await login(form.email, form.password);
       if (resultado.success) {
         toast.success(`¡Bienvenido ${resultado.usuario.nombre}!`);
+        navigate('/dashboard');
       }
     } else {
       resultado = await register({
