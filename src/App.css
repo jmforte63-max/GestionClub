@@ -904,25 +904,87 @@ body {
 }
 
 /* RESPONSIVE */
+@media (max-width: 1024px) {
+  .navbar {
+    padding: 1rem 1.25rem;
+  }
+
+  .navbar-brand {
+    width: 100%;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .user-controls {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .club-selector,
+  .club-badge-inline {
+    min-width: 0;
+    flex: 1 1 180px;
+  }
+
+  .user-admin-button {
+    flex: 1 1 160px;
+  }
+
+  .nav-menu {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
 @media (max-width: 768px) {
   .navbar {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
     gap: 1rem;
+    padding: 1rem 0.8rem;
   }
 
   .navbar-brand {
     width: 100%;
     flex-direction: column;
+    align-items: stretch;
+  }
+
+  .user-controls {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  .club-selector,
+  .club-badge-inline,
+  .user-admin-button {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+
+  .admin-menu {
+    position: static;
+    width: 100%;
+    margin-top: 0.75rem;
   }
 
   .nav-menu {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(130px, 1fr));
+    gap: 0.5rem;
     width: 100%;
-    flex-direction: column;
+  }
+
+  .nav-link {
+    width: 100%;
+    text-align: center;
+    padding: 0.75rem 0.5rem;
   }
 
   .main-content {
-    padding: 1rem;
+    padding: 1rem 0.75rem;
   }
 
   .navbar-brand h1 {
@@ -932,5 +994,97 @@ body {
   .user-info {
     width: 100%;
     text-align: center;
+  }
+
+  .dashboard-header-row,
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dashboard h1 {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+  }
+
+  .stats-grid,
+  .charts-grid,
+  .dashboard-grid,
+  .panel-grid,
+  .club-form-grid,
+  .account-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-container {
+    min-height: 260px;
+    padding: 1rem;
+  }
+
+  .recent-transactions,
+  .quick-actions,
+  .account-balance-panel,
+  .card,
+  .metric-card {
+    padding: 1rem;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 0.5rem 0.45rem;
+    font-size: 0.75rem;
+  }
+
+  .temporada-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .perfil-actions,
+  .confirm-modal-actions,
+  .account-form-actions,
+  .club-form-actions {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-menu {
+    grid-template-columns: 1fr;
+  }
+
+  .nav-link {
+    font-size: 0.9rem;
+  }
+
+  .navbar-brand h1 {
+    font-size: 1.1rem;
+  }
+
+  .main-content {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .form-group input,
+  .club-field input,
+  .account-field input,
+  .account-field select,
+  .club-inline-input {
+    font-size: 16px;
+  }
+
+  .login-box {
+    padding: 2rem 1.1rem;
+  }
+
+  .login-header h1 {
+    font-size: 1.6rem;
+  }
+
+  .auth-toggle {
+    grid-template-columns: 1fr;
+  }
+
+  .confirm-modal-card {
+    padding: 1rem;
   }
 }
