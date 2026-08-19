@@ -124,8 +124,10 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
   const esReporteBalance = tipoReporte === 'balance';
   const esReporteCuenta = tipoReporte === 'cuenta';
   const esReporteEstadoCuenta = tipoReporte === 'estado-cuenta';
-  const mesesEnPeriodo = esReporteBalance || esReporteEstadoCuenta
+  const mesesEnPeriodo = esReporteBalance
     ? [mesSeleccionado || mesesDisponibles[0]?.value || '01']
+    : esReporteEstadoCuenta
+      ? mesesDisponibles.map((mes) => mes.value)
     : getPeriodoActual(trimestreSeleccionado, temporadaActiva);
 
   const obtenerIvaConcepto = (movimiento, conceptos) => {
