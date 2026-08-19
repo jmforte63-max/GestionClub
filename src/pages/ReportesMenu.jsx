@@ -37,6 +37,15 @@ export default function ReportesMenu({ onNavigate }) {
           <span className="reporte-card-arrow">→</span>
         </button>
 
+        <button className="reporte-card reporte-card-balance" onClick={() => onNavigate('reporte-estado-cuenta')}>
+          <span className="reporte-card-icon">📊</span>
+          <span className="reporte-card-content">
+            <strong>Estado de cuenta</strong>
+            <small>Consulta saldo inicial, ingresos, gastos, saldo final y movimientos del periodo.</small>
+          </span>
+          <span className="reporte-card-arrow">→</span>
+        </button>
+
       </div>
     </div>
   );

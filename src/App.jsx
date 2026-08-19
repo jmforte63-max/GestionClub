@@ -368,6 +368,7 @@ function AppContent() {
     'reporte-iva': '/reporte-iva',
     'reporte-balance': '/reporte-balance',
     'reporte-cuenta': '/reporte-cuenta',
+    'reporte-estado-cuenta': '/reporte-estado-cuenta',
     'cuentas-bancarias': '/cuentas-bancarias'
   };
 
@@ -404,6 +405,8 @@ function AppContent() {
         return <Reportes tipoReporte="balance" selectedClub={clubSeleccionado} selectedSeason={temporadaActual} temporadas={temporadas} clubName={clubActivo?.nombre || 'Todos los clubs'} clubEscudo={clubActivo?.escudo_url} onSeasonChange={setTemporadaActual} onNavigate={navegarA} />;
       case 'reporte-cuenta':
         return <Reportes tipoReporte="cuenta" selectedClub={clubSeleccionado} selectedSeason={temporadaActual} temporadas={temporadas} clubName={clubActivo?.nombre || 'Todos los clubs'} clubEscudo={clubActivo?.escudo_url} onSeasonChange={setTemporadaActual} onNavigate={navegarA} />;
+      case 'reporte-estado-cuenta':
+        return <Reportes tipoReporte="estado-cuenta" selectedClub={clubSeleccionado} selectedSeason={temporadaActual} temporadas={temporadas} clubName={clubActivo?.nombre || 'Todos los clubs'} clubEscudo={clubActivo?.escudo_url} onSeasonChange={setTemporadaActual} onNavigate={navegarA} />;
       case 'cuentas-bancarias':
         return <CuentasBancarias selectedClub={clubSeleccionado} selectedSeason={temporadaActual} />;
       default:
@@ -425,6 +428,7 @@ function AppContent() {
       case '/reporte-iva': return 'reporte-iva';
       case '/reporte-balance': return 'reporte-balance';
       case '/reporte-cuenta': return 'reporte-cuenta';
+      case '/reporte-estado-cuenta': return 'reporte-estado-cuenta';
       case '/cuentas-bancarias': return 'cuentas-bancarias';
       case '/dashboard':
       case '/':
@@ -729,7 +733,7 @@ function AppContent() {
           </li>
           <li>
             <button 
-              className={`nav-link ${['reportes', 'reporte-iva', 'reporte-balance', 'reporte-cuenta'].includes(paginaActual) ? 'active' : ''}`}
+              className={`nav-link ${['reportes', 'reporte-iva', 'reporte-balance', 'reporte-cuenta', 'reporte-estado-cuenta'].includes(paginaActual) ? 'active' : ''}`}
               onClick={() => navigate('/reportes')}
             >
               📈 Reportes
@@ -762,6 +766,7 @@ function AppContent() {
           <Route path="/reporte-iva" element={renderPagina('reporte-iva')} />
           <Route path="/reporte-balance" element={renderPagina('reporte-balance')} />
           <Route path="/reporte-cuenta" element={renderPagina('reporte-cuenta')} />
+          <Route path="/reporte-estado-cuenta" element={renderPagina('reporte-estado-cuenta')} />
           <Route path="/cuentas-bancarias" element={renderPagina('cuentas-bancarias')} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
