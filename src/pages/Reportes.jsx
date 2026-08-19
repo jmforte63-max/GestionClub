@@ -85,15 +85,23 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
         const conceptosIngresosData = await conceptosIngresosRes.json().catch(() => []);
         const conceptosEgresosData = await conceptosEgresosRes.json().catch(() => []);
         const cuentasData = await cuentasRes.json().catch(() => []);
+        const cuentasLista = Array.isArray(cuentasData) ? cuentasData : [];
 
         setIngresos(Array.isArray(ingresosData) ? ingresosData : []);
         setEgresos(Array.isArray(egresosData) ? egresosData : []);
         setConceptosIngresos(Array.isArray(conceptosIngresosData) ? conceptosIngresosData : []);
         setConceptosEgresos(Array.isArray(conceptosEgresosData) ? conceptosEgresosData : []);
-        setCuentas(Array.isArray(cuentasData) ? cuentasData : []);
+        setCuentas(cuentasLista);
 
-        if (tipoReporte === 'cuenta' && Array.isArray(cuentasData) && cuentasData.length > 0 && cuentaSeleccionada === 'all') {
-          setCuentaSeleccionada(String(cuentasData[0].id));
+        if (tipoReporte === 'cuenta') {
+          const tieneCuentaValida = cuentasLista.some((cuenta) => String(cuenta.id) === String(cuentaSeleccionada));
+          if (cuentasLista.length > 0 && (!tieneCuentaValida || cuentaSeleccionada === 'all')) {
+            setCuentaSeleccionada(String(cuentasLista[0].id));
+          }
+
+          if (cuentasLista.length === 0) {
+            setCuentaSeleccionada('all');
+          }
         }
       } catch (error) {
         console.error('Error al cargar movimientos para el reporte:', error);
@@ -102,13 +110,16 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
         setConceptosIngresos([]);
         setConceptosEgresos([]);
         setCuentas([]);
+        if (tipoReporte === 'cuenta') {
+          setCuentaSeleccionada('all');
+        }
       } finally {
         setCargando(false);
       }
     };
 
     cargarMovimientos();
-  }, [selectedClub, temporadaActiva, tipoReporte]);
+  }, [selectedClub, temporadaActiva, tipoReporte, cuentaSeleccionada]);
 
   const esReporteBalance = tipoReporte === 'balance';
   const esReporteCuenta = tipoReporte === 'cuenta';
@@ -146,8 +157,9 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
   const movimientosBalanceIngresos = ingresos.filter((movimiento) => perteneceAlPeriodo(movimiento));
   const movimientosBalanceEgresos = egresos.filter((movimiento) => perteneceAlPeriodo(movimiento));
 
+  const cuentaSeleccionadaValida = esReporteCuenta && cuentas.some((cuenta) => String(cuenta.id) === String(cuentaSeleccionada));
   const movimientosPorCuenta = (() => {
-    if (!esReporteCuenta) return [];
+    if (!esReporteCuenta || !cuentaSeleccionadaValida || cuentaSeleccionada === 'all') return [];
 
     const cuentaId = Number(cuentaSeleccionada);
     const ingresosCuenta = ingresos.filter((movimiento) => Number(movimiento.cuenta_id ?? 0) === cuentaId && perteneceAlPeriodo(movimiento));
@@ -280,6 +292,12 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
       </header>
       <h1>{esReporteBalance ? '💰 Balance financiero' : esReporteCuenta ? '🏦 Movimientos por cuenta' : '💰 Declaración de IVA'}</h1>
 
+      {esReporteCuenta && cuentas.length === 0 && !cargando && (
+        <div className="reporte-seccion">
+          <p>No hay cuentas bancarias creadas para esta temporada/club, así que aún no hay movimientos por cuenta disponibles.</p>
+        </div>
+      )}
+
       <div className="mes-selector rango-iva">
         <label>Temporada:</label>
         <select value={temporadaActiva} onChange={(e) => onSeasonChange?.(e.target.value)}>
@@ -291,10 +309,14 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
         {esReporteCuenta ? (
           <>
             <label>Cuenta:</label>
-            <select value={cuentaSeleccionada} onChange={(e) => setCuentaSeleccionada(e.target.value)}>
-              {cuentas.map((cuenta) => (
-                <option key={cuenta.id} value={String(cuenta.id)}>{cuenta.nombre}</option>
-              ))}
+            <select value={cuentaSeleccionadaValida ? cuentaSeleccionada : 'all'} onChange={(e) => setCuentaSeleccionada(e.target.value)} disabled={cuentas.length === 0}>
+              {cuentas.length === 0 ? (
+                <option value="all">Sin cuentas</option>
+              ) : (
+                cuentas.map((cuenta) => (
+                  <option key={cuenta.id} value={String(cuenta.id)}>{cuenta.nombre}</option>
+                ))
+              )}
             </select>
           </>
         ) : esReporteBalance ? (
@@ -436,13 +458,13 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
         </div>
       )}
 
-      {!cargando && (
+      {!cargando && !esReporteCuenta && (
         <div className="acciones">
           <button className="export-btn pdf-btn" onClick={imprimirPdf}>📄 Generar PDF</button>
         </div>
       )}
 
-      {!cargando && (
+      {!cargando && !esReporteCuenta && (
         <section className="reporte-seccion full-width">
           <h2>Detalle por tipo de movimiento</h2>
           {movimientosDetalle.length > MAX_MOVIMIENTOS_MOSTRADOS && (
