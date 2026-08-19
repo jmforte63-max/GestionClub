@@ -35,6 +35,20 @@ test('no duplica un ingreso cuando la cuenta ya tiene saldo base', () => {
   assert.equal(calcularSaldoCuenta(cuenta, ingresos, egresos), 120);
 });
 
+test('no mantiene el saldo de una cuenta si la temporada seleccionada no tiene movimientos', () => {
+  const cuenta = { id: 35, saldo: 2500 };
+  const ingresos = [
+    { cuenta_id: 35, temporada: '2024/25', total_con_iva: 100 },
+    { cuenta_id: 88, temporada: '2024/25', total_con_iva: 500 }
+  ];
+  const egresos = [
+    { cuenta_id: 35, temporada: '2024/25', total_con_iva: 50 },
+    { cuenta_id: 88, temporada: '2024/25', total_con_iva: 100 }
+  ];
+
+  assert.equal(calcularSaldoCuenta(cuenta, ingresos, egresos, '2023/24'), 0);
+});
+
 test('recalcularSaldoCuenta guarda el saldo calculado sin duplicarlo', async () => {
   let updateParams = null;
   const mockPool = {

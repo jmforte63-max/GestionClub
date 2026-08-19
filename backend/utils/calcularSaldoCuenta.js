@@ -1,4 +1,4 @@
-export const calcularSaldoCuenta = (cuenta, ingresos = [], egresos = []) => {
+export const calcularSaldoCuenta = (cuenta, ingresos = [], egresos = [], temporada = null) => {
   const saldoBase = Number(cuenta?.saldo ?? 0);
   const cuentaId = Number(cuenta?.id ?? 0);
 
@@ -6,13 +6,37 @@ export const calcularSaldoCuenta = (cuenta, ingresos = [], egresos = []) => {
     return saldoBase;
   }
 
-  const totalIngresos = ingresos
-    .filter((movimiento) => Number(movimiento?.cuenta_id ?? 0) === cuentaId)
-    .reduce((suma, movimiento) => suma + Number(movimiento?.total_con_iva ?? movimiento?.monto ?? 0), 0);
+  const ingresosFiltrados = Array.isArray(ingresos)
+    ? ingresos.filter((movimiento) => Number(movimiento?.cuenta_id ?? 0) === cuentaId)
+    : [];
 
-  const totalEgresos = egresos
-    .filter((movimiento) => Number(movimiento?.cuenta_id ?? 0) === cuentaId)
-    .reduce((suma, movimiento) => suma + Number(movimiento?.total_con_iva ?? movimiento?.monto ?? 0), 0);
+  const egresosFiltrados = Array.isArray(egresos)
+    ? egresos.filter((movimiento) => Number(movimiento?.cuenta_id ?? 0) === cuentaId)
+    : [];
+
+  if (temporada) {
+    const ingresosTemporada = ingresosFiltrados.filter((movimiento) => {
+      const nombreTemporada = String(movimiento?.temporada ?? '').trim();
+      return nombreTemporada && nombreTemporada === String(temporada).trim();
+    });
+
+    const egresosTemporada = egresosFiltrados.filter((movimiento) => {
+      const nombreTemporada = String(movimiento?.temporada ?? '').trim();
+      return nombreTemporada && nombreTemporada === String(temporada).trim();
+    });
+
+    if (!ingresosTemporada.length && !egresosTemporada.length) {
+      return 0;
+    }
+
+    const totalIngresos = ingresosTemporada.reduce((suma, movimiento) => suma + Number(movimiento?.total_con_iva ?? movimiento?.monto ?? 0), 0);
+    const totalEgresos = egresosTemporada.reduce((suma, movimiento) => suma + Number(movimiento?.total_con_iva ?? movimiento?.monto ?? 0), 0);
+
+    return totalIngresos - totalEgresos;
+  }
+
+  const totalIngresos = ingresosFiltrados.reduce((suma, movimiento) => suma + Number(movimiento?.total_con_iva ?? movimiento?.monto ?? 0), 0);
+  const totalEgresos = egresosFiltrados.reduce((suma, movimiento) => suma + Number(movimiento?.total_con_iva ?? movimiento?.monto ?? 0), 0);
 
   return saldoBase + totalIngresos - totalEgresos;
 };
