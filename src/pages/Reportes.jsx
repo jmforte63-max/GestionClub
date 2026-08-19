@@ -189,14 +189,6 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
     return obtenerMovimientosDeCuenta(cuentaId);
   })();
 
-  const movimientosDetalle = esReporteBalance
-    ? [...movimientosBalanceIngresos.map((m) => ({ ...m, _tipo: 'ingreso' })), ...movimientosBalanceEgresos.map((m) => ({ ...m, _tipo: 'egreso' }))]
-    : esReporteCuenta || esReporteEstadoCuenta
-      ? [...movimientosPorCuenta].sort((a, b) => obtenerFechaMovimiento(a).localeCompare(obtenerFechaMovimiento(b)))
-      : [...movimientosIngresosFiltrados.map((m) => ({ ...m, _tipo: 'ingreso' })), ...movimientosEgresosFiltrados.map((m) => ({ ...m, _tipo: 'egreso' }))];
-
-  const calcularIvaIngreso = (movimiento) => calcularIvaMovimiento(movimiento, obtenerIvaConcepto(movimiento, conceptosIngresos));
-  const calcularIvaEgreso = (movimiento) => calcularIvaMovimiento(movimiento, obtenerIvaConcepto(movimiento, conceptosEgresos));
   const obtenerFechaMovimiento = (movimiento) => {
     const valor = movimiento?.fecha;
     if (!valor) return '';
@@ -216,6 +208,15 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
 
     return texto.slice(0, 10);
   };
+
+  const movimientosDetalle = esReporteBalance
+    ? [...movimientosBalanceIngresos.map((m) => ({ ...m, _tipo: 'ingreso' })), ...movimientosBalanceEgresos.map((m) => ({ ...m, _tipo: 'egreso' }))]
+    : esReporteCuenta || esReporteEstadoCuenta
+      ? [...movimientosPorCuenta].sort((a, b) => obtenerFechaMovimiento(a).localeCompare(obtenerFechaMovimiento(b)))
+      : [...movimientosIngresosFiltrados.map((m) => ({ ...m, _tipo: 'ingreso' })), ...movimientosEgresosFiltrados.map((m) => ({ ...m, _tipo: 'egreso' }))];
+
+  const calcularIvaIngreso = (movimiento) => calcularIvaMovimiento(movimiento, obtenerIvaConcepto(movimiento, conceptosIngresos));
+  const calcularIvaEgreso = (movimiento) => calcularIvaMovimiento(movimiento, obtenerIvaConcepto(movimiento, conceptosEgresos));
 
   const ivaCobrado = movimientosIngresosFiltrados.reduce((total, movimiento) => total + calcularIvaIngreso(movimiento), 0);
   const ivaPagado = movimientosEgresosFiltrados.reduce((total, movimiento) => total + calcularIvaEgreso(movimiento), 0);
