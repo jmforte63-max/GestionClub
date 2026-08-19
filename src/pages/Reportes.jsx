@@ -162,8 +162,20 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
   const movimientosDetalle = esReporteBalance
     ? [...movimientosBalanceIngresos.map((m) => ({ ...m, _tipo: 'ingreso' })), ...movimientosBalanceEgresos.map((m) => ({ ...m, _tipo: 'egreso' }))]
     : esReporteCuenta
-      ? movimientosPorCuenta
+      ? [...movimientosPorCuenta].sort((a, b) => obtenerFechaMovimiento(a).localeCompare(obtenerFechaMovimiento(b)))
       : [...movimientosIngresosFiltrados.map((m) => ({ ...m, _tipo: 'ingreso' })), ...movimientosEgresosFiltrados.map((m) => ({ ...m, _tipo: 'egreso' }))];
+
+  const movimientosDetalleConSaldo = esReporteCuenta
+    ? (() => {
+        let saldoAcumulado = 0;
+        return movimientosDetalle.map((movimiento) => {
+          const esIngreso = movimiento._tipo === 'ingreso';
+          const valor = Number(movimiento.total_con_iva ?? movimiento.monto ?? 0);
+          saldoAcumulado += esIngreso ? valor : -valor;
+          return { ...movimiento, saldoAcumulado };
+        });
+      })()
+    : movimientosDetalle;
 
   const calcularIvaIngreso = (movimiento) => calcularIvaMovimiento(movimiento, obtenerIvaConcepto(movimiento, conceptosIngresos));
   const calcularIvaEgreso = (movimiento) => calcularIvaMovimiento(movimiento, obtenerIvaConcepto(movimiento, conceptosEgresos));
@@ -224,7 +236,7 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
       : [...movimientosIngresosFiltrados, ...movimientosEgresosFiltrados];
 
     const filas = [
-      ['Tipo', 'Concepto', 'Descripción', 'Fecha', 'Base', 'IVA'],
+      ['Tipo', 'Concepto', 'Descripción', 'Fecha', 'Base', 'Saldo'],
       ...movimientosExportacion
         .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
         .map((movimiento) => {
@@ -447,18 +459,22 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
                   <th>Descripción</th>
                   <th>Fecha</th>
                   <th>Base</th>
-                  <th>{esReporteBalance ? 'Total' : 'IVA'}</th>
+                  <th>{esReporteCuenta ? 'Saldo' : esReporteBalance ? 'Total' : 'IVA'}</th>
                 </tr>
               </thead>
               <tbody>
-                {movimientosDetalle
+                {(esReporteCuenta ? movimientosDetalleConSaldo : movimientosDetalle)
                   .sort((a, b) => obtenerFechaMovimiento(b).localeCompare(obtenerFechaMovimiento(a)))
                   .slice(0, MAX_MOVIMIENTOS_MOSTRADOS)
                   .map((movimiento, index) => {
                     const esIngreso = movimiento._tipo === 'ingreso';
                     const ivaMovimiento = esIngreso ? calcularIvaIngreso(movimiento) : calcularIvaEgreso(movimiento);
                     const totalConIva = calcularTotalConIva(movimiento, esIngreso ? conceptosIngresos : conceptosEgresos);
-                    const valorColumna = esReporteBalance ? totalConIva : ivaMovimiento;
+                    const valorColumna = esReporteCuenta
+                      ? Number(movimiento.saldoAcumulado ?? 0)
+                      : esReporteBalance
+                        ? totalConIva
+                        : ivaMovimiento;
                     return (
                       <tr key={`${movimiento.id || index}-${esIngreso ? 'ing' : 'egr'}`}>
                         <td>{esIngreso ? 'Ingreso' : 'Gasto'}</td>
