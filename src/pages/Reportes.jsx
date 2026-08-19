@@ -31,6 +31,16 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
   }, [temporadas, temporadaActiva]);
   const trimestresDisponibles = useMemo(() => getTrimestresDeTemporada(temporadaActiva), [temporadaActiva]);
   const mesesDisponibles = useMemo(() => obtenerMesesDeTemporada(temporadaActiva), [temporadaActiva]);
+  const cuentasDisponiblesReporte = useMemo(() => {
+    const match = String(temporadaActiva).match(/^(\d{4})\/(\d{2})$/);
+    if (!match) return cuentas;
+
+    const fechaFinTemporada = `${Number(match[1]) + 1}-06-30`;
+    return cuentas.filter((cuenta) => {
+      const fechaSaldoInicial = String(cuenta.fecha_saldo_inicial || cuenta.fecha_creacion || '').slice(0, 10);
+      return !fechaSaldoInicial || fechaSaldoInicial <= fechaFinTemporada;
+    });
+  }, [cuentas, temporadaActiva]);
 
   useEffect(() => {
     const valoresValidos = trimestresDisponibles.map((trim) => trim.value);
@@ -107,16 +117,16 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
   useEffect(() => {
     if (tipoReporte !== 'estado-cuenta') return;
 
-    if (cuentas.length === 0) {
+    if (cuentasDisponiblesReporte.length === 0) {
       setCuentaSeleccionada('all');
       return;
     }
 
-    const existe = cuentas.some((cuenta) => String(cuenta.id) === String(cuentaSeleccionada));
+    const existe = cuentasDisponiblesReporte.some((cuenta) => String(cuenta.id) === String(cuentaSeleccionada));
     if (!existe || cuentaSeleccionada === 'all') {
-      setCuentaSeleccionada(String(cuentas[0].id));
+      setCuentaSeleccionada(String(cuentasDisponiblesReporte[0].id));
     }
-  }, [tipoReporte, cuentas, cuentaSeleccionada]);
+  }, [tipoReporte, cuentasDisponiblesReporte, cuentaSeleccionada]);
 
   const esReporteBalance = tipoReporte === 'balance';
   const esReporteEstadoCuenta = tipoReporte === 'estado-cuenta';
@@ -182,7 +192,7 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
   const movimientosBalanceIngresos = ingresos.filter((movimiento) => perteneceAlPeriodo(movimiento));
   const movimientosBalanceEgresos = egresos.filter((movimiento) => perteneceAlPeriodo(movimiento));
 
-  const cuentaSeleccionadaValida = !esReporteEstadoCuenta || cuentas.some((cuenta) => String(cuenta.id) === String(cuentaSeleccionada));
+  const cuentaSeleccionadaValida = !esReporteEstadoCuenta || cuentasDisponiblesReporte.some((cuenta) => String(cuenta.id) === String(cuentaSeleccionada));
   const movimientosPorCuenta = (() => {
     if (!esReporteEstadoCuenta || !cuentaSeleccionadaValida || cuentaSeleccionada === 'all') return [];
 
@@ -223,7 +233,7 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
   const ivaPagado = movimientosEgresosFiltrados.reduce((total, movimiento) => total + calcularIvaEgreso(movimiento), 0);
   const ivaNeto = ivaCobrado - ivaPagado;
 
-  const cuentaActiva = cuentas.find((cuenta) => String(cuenta.id) === String(cuentaSeleccionada)) || null;
+  const cuentaActiva = cuentasDisponiblesReporte.find((cuenta) => String(cuenta.id) === String(cuentaSeleccionada)) || null;
   const movimientosPeriodoCuenta = esReporteEstadoCuenta && cuentaSeleccionadaValida && cuentaSeleccionada !== 'all'
     ? movimientosPorCuenta
     : [];
@@ -303,7 +313,7 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
       </header>
       <h1>{esReporteBalance ? '💰 Balance financiero' : esReporteEstadoCuenta ? '🏦 Estado de cuenta' : '💰 Declaración de IVA'}</h1>
 
-      {esReporteEstadoCuenta && cuentas.length === 0 && !cargando && (
+      {esReporteEstadoCuenta && cuentasDisponiblesReporte.length === 0 && !cargando && (
         <div className="reporte-seccion">
           <p>No hay cuentas bancarias creadas para esta temporada/club, así que aún no hay movimientos disponibles.</p>
         </div>
@@ -320,11 +330,11 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
         {esReporteEstadoCuenta ? (
           <>
             <label>Cuenta:</label>
-            <select value={cuentaSeleccionadaValida ? cuentaSeleccionada : 'all'} onChange={(e) => setCuentaSeleccionada(e.target.value)} disabled={cuentas.length === 0}>
-              {cuentas.length === 0 ? (
+            <select value={cuentaSeleccionadaValida ? cuentaSeleccionada : 'all'} onChange={(e) => setCuentaSeleccionada(e.target.value)} disabled={cuentasDisponiblesReporte.length === 0}>
+              {cuentasDisponiblesReporte.length === 0 ? (
                 <option value="all">Sin cuentas</option>
               ) : (
-                cuentas.map((cuenta) => (
+                cuentasDisponiblesReporte.map((cuenta) => (
                   <option key={cuenta.id} value={String(cuenta.id)}>{cuenta.nombre}</option>
                 ))
               )}
