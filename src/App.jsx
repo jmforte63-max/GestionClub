@@ -367,6 +367,7 @@ function AppContent() {
     reportes: '/reportes',
     'reporte-iva': '/reporte-iva',
     'reporte-balance': '/reporte-balance',
+    'reporte-cuenta': '/reporte-cuenta',
     'cuentas-bancarias': '/cuentas-bancarias'
   };
 
@@ -401,6 +402,8 @@ function AppContent() {
         return <Reportes tipoReporte="iva" selectedClub={clubSeleccionado} selectedSeason={temporadaActual} temporadas={temporadas} clubName={clubActivo?.nombre || 'Todos los clubs'} clubEscudo={clubActivo?.escudo_url} onSeasonChange={setTemporadaActual} onNavigate={navegarA} />;
       case 'reporte-balance':
         return <Reportes tipoReporte="balance" selectedClub={clubSeleccionado} selectedSeason={temporadaActual} temporadas={temporadas} clubName={clubActivo?.nombre || 'Todos los clubs'} clubEscudo={clubActivo?.escudo_url} onSeasonChange={setTemporadaActual} onNavigate={navegarA} />;
+      case 'reporte-cuenta':
+        return <Reportes tipoReporte="cuenta" selectedClub={clubSeleccionado} selectedSeason={temporadaActual} temporadas={temporadas} clubName={clubActivo?.nombre || 'Todos los clubs'} clubEscudo={clubActivo?.escudo_url} onSeasonChange={setTemporadaActual} onNavigate={navegarA} />;
       case 'cuentas-bancarias':
         return <CuentasBancarias selectedClub={clubSeleccionado} selectedSeason={temporadaActual} />;
       default:
@@ -421,6 +424,7 @@ function AppContent() {
       case '/reportes': return 'reportes';
       case '/reporte-iva': return 'reporte-iva';
       case '/reporte-balance': return 'reporte-balance';
+      case '/reporte-cuenta': return 'reporte-cuenta';
       case '/cuentas-bancarias': return 'cuentas-bancarias';
       case '/dashboard':
       case '/':
@@ -725,7 +729,7 @@ function AppContent() {
           </li>
           <li>
             <button 
-              className={`nav-link ${['reportes', 'reporte-iva', 'reporte-balance'].includes(paginaActual) ? 'active' : ''}`}
+              className={`nav-link ${['reportes', 'reporte-iva', 'reporte-balance', 'reporte-cuenta'].includes(paginaActual) ? 'active' : ''}`}
               onClick={() => navigate('/reportes')}
             >
               📈 Reportes
@@ -757,6 +761,7 @@ function AppContent() {
           <Route path="/reportes" element={renderPagina('reportes')} />
           <Route path="/reporte-iva" element={renderPagina('reporte-iva')} />
           <Route path="/reporte-balance" element={renderPagina('reporte-balance')} />
+          <Route path="/reporte-cuenta" element={renderPagina('reporte-cuenta')} />
           <Route path="/cuentas-bancarias" element={renderPagina('cuentas-bancarias')} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
