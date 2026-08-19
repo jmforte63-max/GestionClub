@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import '../styles/Reportes.css';
 import {
   calcularIvaMovimiento,
-  calcularSaldoAcumuladoPorCuenta,
   getPeriodoActual,
   getTrimestresDeTemporada,
   obtenerMesesDeTemporada,
@@ -177,10 +176,6 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
     : esReporteCuenta
       ? [...movimientosPorCuenta].sort((a, b) => obtenerFechaMovimiento(a).localeCompare(obtenerFechaMovimiento(b)))
       : [...movimientosIngresosFiltrados.map((m) => ({ ...m, _tipo: 'ingreso' })), ...movimientosEgresosFiltrados.map((m) => ({ ...m, _tipo: 'egreso' }))];
-
-  const movimientosDetalleConSaldo = esReporteCuenta
-    ? calcularSaldoAcumuladoPorCuenta(movimientosDetalle)
-    : movimientosDetalle;
 
   const calcularIvaIngreso = (movimiento) => calcularIvaMovimiento(movimiento, obtenerIvaConcepto(movimiento, conceptosIngresos));
   const calcularIvaEgreso = (movimiento) => calcularIvaMovimiento(movimiento, obtenerIvaConcepto(movimiento, conceptosEgresos));
@@ -461,7 +456,7 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
 
       {!cargando && (
         <section className="reporte-seccion full-width">
-          <h2>{esReporteCuenta ? 'Detalle por movimiento y saldo acumulado' : 'Detalle por tipo de movimiento'}</h2>
+          <h2>{esReporteCuenta ? 'Detalle por movimiento' : 'Detalle por tipo de movimiento'}</h2>
           {movimientosDetalle.length > MAX_MOVIMIENTOS_MOSTRADOS && (
             <p className="info-compactada" style={{ color: '#999', fontSize: '0.8rem', marginBottom: '0.5rem' }}>
               Mostrando {MAX_MOVIMIENTOS_MOSTRADOS} de {movimientosDetalle.length} movimientos.
@@ -476,22 +471,18 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
                   <th>Descripción</th>
                   <th>Fecha</th>
                   <th>Base</th>
-                  <th>{esReporteCuenta ? 'Saldo' : esReporteBalance ? 'Total' : 'IVA'}</th>
+                  <th>{esReporteBalance ? 'Total' : 'IVA'}</th>
                 </tr>
               </thead>
               <tbody>
-                {(esReporteCuenta ? movimientosDetalleConSaldo : movimientosDetalle)
+                {movimientosDetalle
                   .sort((a, b) => obtenerFechaMovimiento(b).localeCompare(obtenerFechaMovimiento(a)))
                   .slice(0, MAX_MOVIMIENTOS_MOSTRADOS)
                   .map((movimiento, index) => {
                     const esIngreso = movimiento._tipo === 'ingreso';
                     const ivaMovimiento = esIngreso ? calcularIvaIngreso(movimiento) : calcularIvaEgreso(movimiento);
                     const totalConIva = calcularTotalConIva(movimiento, esIngreso ? conceptosIngresos : conceptosEgresos);
-                    const valorColumna = esReporteCuenta
-                      ? Number(movimiento.saldoAcumulado ?? 0)
-                      : esReporteBalance
-                        ? totalConIva
-                        : ivaMovimiento;
+                    const valorColumna = esReporteBalance ? totalConIva : ivaMovimiento;
                     return (
                       <tr key={`${movimiento.id || index}-${esIngreso ? 'ing' : 'egr'}`}>
                         <td>{esIngreso ? 'Ingreso' : 'Gasto'}</td>

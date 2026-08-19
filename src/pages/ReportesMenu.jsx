@@ -32,7 +32,7 @@ export default function ReportesMenu({ onNavigate }) {
           <span className="reporte-card-icon">🏦</span>
           <span className="reporte-card-content">
             <strong>Movimientos por cuenta</strong>
-            <small>Consulta cada movimiento con el saldo acumulado.</small>
+            <small>Consulta el detalle de cada movimiento por cuenta.</small>
           </span>
           <span className="reporte-card-arrow">→</span>
         </button>
