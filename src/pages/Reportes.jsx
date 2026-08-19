@@ -92,17 +92,6 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
         setConceptosIngresos(Array.isArray(conceptosIngresosData) ? conceptosIngresosData : []);
         setConceptosEgresos(Array.isArray(conceptosEgresosData) ? conceptosEgresosData : []);
         setCuentas(cuentasLista);
-
-        if (tipoReporte === 'cuenta') {
-          const tieneCuentaValida = cuentasLista.some((cuenta) => String(cuenta.id) === String(cuentaSeleccionada));
-          if (cuentasLista.length > 0 && (!tieneCuentaValida || cuentaSeleccionada === 'all')) {
-            setCuentaSeleccionada(String(cuentasLista[0].id));
-          }
-
-          if (cuentasLista.length === 0) {
-            setCuentaSeleccionada('all');
-          }
-        }
       } catch (error) {
         console.error('Error al cargar movimientos para el reporte:', error);
         setIngresos([]);
@@ -110,16 +99,27 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
         setConceptosIngresos([]);
         setConceptosEgresos([]);
         setCuentas([]);
-        if (tipoReporte === 'cuenta') {
-          setCuentaSeleccionada('all');
-        }
       } finally {
         setCargando(false);
       }
     };
 
     cargarMovimientos();
-  }, [selectedClub, temporadaActiva, tipoReporte, cuentaSeleccionada]);
+  }, [selectedClub, temporadaActiva, tipoReporte]);
+
+  useEffect(() => {
+    if (tipoReporte !== 'cuenta') return;
+
+    if (cuentas.length === 0) {
+      setCuentaSeleccionada('all');
+      return;
+    }
+
+    const cuentaExiste = cuentas.some((cuenta) => String(cuenta.id) === String(cuentaSeleccionada));
+    if (cuentaSeleccionada === 'all' || !cuentaExiste) {
+      setCuentaSeleccionada(String(cuentas[0].id));
+    }
+  }, [tipoReporte, cuentas, cuentaSeleccionada]);
 
   const esReporteBalance = tipoReporte === 'balance';
   const esReporteCuenta = tipoReporte === 'cuenta';
