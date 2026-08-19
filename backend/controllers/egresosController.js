@@ -1,4 +1,5 @@
 import pool from '../config/database.js';
+import { recalcularSaldosMensuales } from '../utils/recalcularSaldosMensuales.js';
 
 const actualizarSaldoCuentaDesdeMovimiento = async (poolConnection, cuentaId, clubId, delta) => {
   if (!cuentaId || !clubId || !Number.isFinite(Number(delta))) {
@@ -155,6 +156,8 @@ export const crearEgreso = async (req, res) => {
       await actualizarSaldoCuentaDesdeMovimiento(pool, cuentaId, clubId, -totalConIvaFinal);
     }
 
+    await recalcularSaldosMensuales(clubId);
+
     res.status(201).json({
       id: result.insertId,
       mensaje: 'Egreso creado exitosamente'
@@ -270,6 +273,8 @@ export const actualizarEgreso = async (req, res) => {
       await actualizarSaldoCuentaDesdeMovimiento(pool, cuentaId, clubId, -totalConIvaFinal);
     }
 
+    await recalcularSaldosMensuales(clubId);
+
     res.json({ mensaje: 'Egreso actualizado exitosamente' });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -308,6 +313,8 @@ export const eliminarEgreso = async (req, res) => {
     } else if (cuentaId) {
       await actualizarSaldoCuentaDesdeMovimiento(pool, cuentaId, clubId, totalMovimiento);
     }
+
+    await recalcularSaldosMensuales(clubId);
 
     res.json({ mensaje: 'Egreso eliminado exitosamente' });
   } catch (error) {

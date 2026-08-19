@@ -1,4 +1,5 @@
 import pool from '../config/database.js';
+import { recalcularSaldosMensuales } from '../utils/recalcularSaldosMensuales.js';
 
 const canSeeAllClubs = (req) => req.user?.rol === 'admin' && String(req.user?.email || '').trim().toLowerCase() === 'admin@club.com';
 const getClubId = (req) => Number(req.user?.club_id ?? 0);
@@ -93,6 +94,7 @@ export const crearCuentaBancaria = async (req, res) => {
     );
 
     const [rows] = await pool.query('SELECT * FROM cuentas_bancarias WHERE id = ? LIMIT 1', [result.insertId]);
+    await recalcularSaldosMensuales(clubId);
     return res.status(201).json(rows[0]);
   } catch (error) {
     return res.status(500).json({ error: error.message });
@@ -150,6 +152,7 @@ export const actualizarCuentaBancaria = async (req, res) => {
     }
 
     const [rows] = await pool.query('SELECT * FROM cuentas_bancarias WHERE id = ? LIMIT 1', [id]);
+    await recalcularSaldosMensuales(clubId);
     return res.json(rows[0]);
   } catch (error) {
     return res.status(500).json({ error: error.message });

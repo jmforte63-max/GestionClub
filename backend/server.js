@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import pool from './config/database.js';
+import { recalcularTodosLosSaldosMensuales } from './utils/recalcularSaldosMensuales.js';
 
 const initializeDatabase = async () => {
   try {
@@ -37,6 +38,12 @@ const frontendPath = isProduction
   : path.join(__dirname, '..', 'frontend');
 
 await initializeDatabase();
+try {
+  await recalcularTodosLosSaldosMensuales();
+  console.log('✅ Saldos mensuales recalculados');
+} catch (error) {
+  console.warn('⚠️ No se pudieron recalcular los saldos mensuales:', error.message);
+}
 
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: '10mb' }));
