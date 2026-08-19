@@ -15,6 +15,7 @@ export default function CuentasBancarias({ selectedClub = 'all' }) {
     numero_cuenta: '',
     iban: '',
     saldo_inicial: '0',
+    fecha_saldo_inicial: new Date().toISOString().slice(0, 10),
     activo: true,
   });
 
@@ -60,7 +61,7 @@ export default function CuentasBancarias({ selectedClub = 'all' }) {
   };
 
   const limpiarFormulario = () => {
-    setForm({ nombre: '', tipo: 'Banco', banco: '', numero_cuenta: '', iban: '', saldo_inicial: '0', activo: true });
+    setForm({ nombre: '', tipo: 'Banco', banco: '', numero_cuenta: '', iban: '', saldo_inicial: '0', fecha_saldo_inicial: new Date().toISOString().slice(0, 10), activo: true });
     setEditandoId(null);
   };
 
@@ -91,6 +92,7 @@ export default function CuentasBancarias({ selectedClub = 'all' }) {
         numero_cuenta: numeroCuenta,
         iban: form.iban.trim(),
         saldo_inicial: Number(form.saldo_inicial || 0),
+        fecha_saldo_inicial: form.fecha_saldo_inicial,
         activo: Boolean(form.activo),
       };
       const clubParam = selectedClub && selectedClub !== 'all' ? `?clubId=${encodeURIComponent(selectedClub)}` : '';
@@ -130,6 +132,7 @@ export default function CuentasBancarias({ selectedClub = 'all' }) {
       numero_cuenta: cuenta.numero_cuenta || '',
       iban: cuenta.iban || '',
       saldo_inicial: String(Number(cuenta.saldo_inicial ?? cuenta.saldo ?? 0).toFixed(2)),
+      fecha_saldo_inicial: String(cuenta.fecha_saldo_inicial || cuenta.fecha_creacion || '').slice(0, 10),
       activo: Boolean(cuenta.activo),
     });
     setError('');
@@ -246,6 +249,16 @@ export default function CuentasBancarias({ selectedClub = 'all' }) {
               step="0.01"
               name="saldo_inicial"
               value={form.saldo_inicial}
+              onChange={handleChange}
+            />
+          </label>
+
+          <label className="account-field">
+            <span>Fecha del saldo inicial</span>
+            <input
+              type="date"
+              name="fecha_saldo_inicial"
+              value={form.fecha_saldo_inicial}
               onChange={handleChange}
             />
           </label>

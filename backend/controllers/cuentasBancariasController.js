@@ -55,6 +55,7 @@ export const crearCuentaBancaria = async (req, res) => {
       numero_cuenta,
       iban,
       saldo_inicial,
+      fecha_saldo_inicial,
       saldo,
       activo = true
     } = req.body || {};
@@ -76,7 +77,7 @@ export const crearCuentaBancaria = async (req, res) => {
     const tipoFinal = normalizarTipoCuenta(tipo);
 
     const [result] = await pool.query(
-      'INSERT INTO cuentas_bancarias (club_id, nombre, tipo, banco, numero_cuenta, iban, saldo_inicial, fecha_saldo_inicial, saldo, activo) VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_DATE, ?, ?)',
+      'INSERT INTO cuentas_bancarias (club_id, nombre, tipo, banco, numero_cuenta, iban, saldo_inicial, fecha_saldo_inicial, saldo, activo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       [
         clubId,
         nombreFinal,
@@ -85,6 +86,7 @@ export const crearCuentaBancaria = async (req, res) => {
         numeroCuentaFinal,
         normalizarTexto(iban),
         Number(saldo_inicial ?? saldo ?? 0),
+        fecha_saldo_inicial || new Date().toISOString().slice(0, 10),
         Number(saldo_inicial ?? saldo ?? 0),
         activo === true || activo === 'true' ? 1 : 0
       ]
@@ -107,6 +109,7 @@ export const actualizarCuentaBancaria = async (req, res) => {
       numero_cuenta,
       iban,
       saldo_inicial,
+      fecha_saldo_inicial,
       saldo,
       activo
     } = req.body || {};
@@ -127,7 +130,7 @@ export const actualizarCuentaBancaria = async (req, res) => {
     const tipoFinal = normalizarTipoCuenta(tipo);
 
     const [result] = await pool.query(
-      'UPDATE cuentas_bancarias SET nombre = ?, tipo = ?, banco = ?, numero_cuenta = ?, iban = ?, saldo_inicial = ?, activo = ? WHERE id = ? AND club_id = ?',
+      'UPDATE cuentas_bancarias SET nombre = ?, tipo = ?, banco = ?, numero_cuenta = ?, iban = ?, saldo_inicial = ?, fecha_saldo_inicial = ?, activo = ? WHERE id = ? AND club_id = ?',
       [
         nombreFinal,
         tipoFinal,
@@ -135,6 +138,7 @@ export const actualizarCuentaBancaria = async (req, res) => {
         numeroCuentaFinal,
         normalizarTexto(iban),
         Number(saldo_inicial ?? saldo ?? 0),
+        fecha_saldo_inicial || new Date().toISOString().slice(0, 10),
         activo === true || activo === 'true' ? 1 : 0,
         id,
         clubId
