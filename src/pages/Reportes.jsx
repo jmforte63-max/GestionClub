@@ -108,7 +108,7 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
   }, [selectedClub, temporadaActiva, tipoReporte]);
 
   useEffect(() => {
-    if (tipoReporte !== 'cuenta') return;
+    if (tipoReporte !== 'cuenta' && tipoReporte !== 'estado-cuenta') return;
 
     if (cuentas.length === 0) {
       setCuentaSeleccionada('all');
@@ -147,6 +147,27 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
     return obtenerTemporadaDesdeFecha(fechaTexto) === temporadaActiva && mesesEnPeriodo.includes(mesString);
   };
 
+  const obtenerCuentaOrigenId = (movimiento) => Number(movimiento?.cuenta_origen_id ?? movimiento?.cuenta_id ?? 0);
+  const obtenerCuentaDestinoId = (movimiento) => Number(movimiento?.cuenta_destino_id ?? 0);
+  const esTraspaso = (movimiento) => Boolean(movimiento?.es_traspaso || obtenerCuentaDestinoId(movimiento));
+  const obtenerMovimientosDeCuenta = (cuentaId) => {
+    const ingresosCuenta = ingresos
+      .filter((movimiento) => Number(movimiento.cuenta_id ?? 0) === cuentaId && perteneceAlPeriodo(movimiento))
+      .map((movimiento) => ({ ...movimiento, _tipo: 'ingreso' }));
+    const egresosCuenta = egresos
+      .filter((movimiento) => {
+        const esSalida = obtenerCuentaOrigenId(movimiento) === cuentaId;
+        const esEntrada = esTraspaso(movimiento) && obtenerCuentaDestinoId(movimiento) === cuentaId;
+        return (esSalida || esEntrada) && perteneceAlPeriodo(movimiento);
+      })
+      .map((movimiento) => ({
+        ...movimiento,
+        _tipo: obtenerCuentaDestinoId(movimiento) === cuentaId && obtenerCuentaOrigenId(movimiento) !== cuentaId ? 'ingreso' : 'egreso'
+      }));
+
+    return [...ingresosCuenta, ...egresosCuenta];
+  };
+
   const movimientosIngresosFiltrados = ingresos.filter((movimiento) => (
     perteneceAlPeriodo(movimiento) && tieneIva(movimiento, conceptosIngresos)
   ));
@@ -163,13 +184,7 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
     if ((!esReporteCuenta && !esReporteEstadoCuenta) || !cuentaSeleccionadaValida || cuentaSeleccionada === 'all') return [];
 
     const cuentaId = Number(cuentaSeleccionada);
-    const ingresosCuenta = ingresos.filter((movimiento) => Number(movimiento.cuenta_id ?? 0) === cuentaId && perteneceAlPeriodo(movimiento));
-    const egresosCuenta = egresos.filter((movimiento) => Number(movimiento.cuenta_id ?? 0) === cuentaId && perteneceAlPeriodo(movimiento));
-
-    return [
-      ...ingresosCuenta.map((m) => ({ ...m, _tipo: 'ingreso' })),
-      ...egresosCuenta.map((m) => ({ ...m, _tipo: 'egreso' }))
-    ];
+    return obtenerMovimientosDeCuenta(cuentaId);
   })();
 
   const movimientosDetalle = esReporteBalance
@@ -206,20 +221,17 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
 
   const cuentaActiva = cuentas.find((cuenta) => String(cuenta.id) === String(cuentaSeleccionada)) || null;
   const cuentaIngresos = esReporteCuenta
-    ? ingresos.filter((movimiento) => Number(movimiento.cuenta_id ?? 0) === Number(cuentaSeleccionada) && perteneceAlPeriodo(movimiento))
+    ? movimientosPorCuenta.filter((movimiento) => movimiento._tipo === 'ingreso')
     : [];
   const cuentaEgresos = esReporteCuenta
-    ? egresos.filter((movimiento) => Number(movimiento.cuenta_id ?? 0) === Number(cuentaSeleccionada) && perteneceAlPeriodo(movimiento))
+    ? movimientosPorCuenta.filter((movimiento) => movimiento._tipo === 'egreso')
     : [];
   const totalIngresosCuenta = cuentaIngresos.reduce((total, movimiento) => total + Number(movimiento.total_con_iva ?? movimiento.monto ?? 0), 0);
   const totalEgresosCuenta = cuentaEgresos.reduce((total, movimiento) => total + Number(movimiento.total_con_iva ?? movimiento.monto ?? 0), 0);
   const saldoCuentaReporte = totalIngresosCuenta - totalEgresosCuenta;
 
   const movimientosPeriodoCuenta = esReporteEstadoCuenta && cuentaSeleccionadaValida && cuentaSeleccionada !== 'all'
-    ? [
-        ...ingresos.filter((movimiento) => Number(movimiento.cuenta_id ?? 0) === Number(cuentaSeleccionada) && perteneceAlPeriodo(movimiento)).map((m) => ({ ...m, _tipo: 'ingreso' })),
-        ...egresos.filter((movimiento) => Number(movimiento.cuenta_id ?? 0) === Number(cuentaSeleccionada) && perteneceAlPeriodo(movimiento)).map((m) => ({ ...m, _tipo: 'egreso' }))
-      ]
+    ? movimientosPorCuenta
     : [];
 
   const saldoInicialEstadoCuenta = (() => {
@@ -232,15 +244,20 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
         if (!fecha) return false;
         const fechaTexto = String(fecha).includes('T') ? String(fecha).split('T')[0] : String(fecha);
         const mes = new Date(`${fechaTexto}T00:00:00`).getMonth() + 1;
-        return Number(movimiento.cuenta_id ?? 0) === cuentaId && obtenerTemporadaDesdeFecha(fechaTexto) === temporadaActiva && mes < Number(mesSeleccionado || mesesDisponibles[0]?.value || '01');
+        return obtenerCuentaOrigenId(movimiento) === cuentaId && obtenerTemporadaDesdeFecha(fechaTexto) === temporadaActiva && mes < Number(mesSeleccionado || mesesDisponibles[0]?.value || '01');
       }).map((m) => ({ ...m, _tipo: 'ingreso' })),
       ...egresos.filter((movimiento) => {
         const fecha = movimiento?.fecha || movimiento?.fecha_creacion;
         if (!fecha) return false;
         const fechaTexto = String(fecha).includes('T') ? String(fecha).split('T')[0] : String(fecha);
         const mes = new Date(`${fechaTexto}T00:00:00`).getMonth() + 1;
-        return Number(movimiento.cuenta_id ?? 0) === cuentaId && obtenerTemporadaDesdeFecha(fechaTexto) === temporadaActiva && mes < Number(mesSeleccionado || mesesDisponibles[0]?.value || '01');
-      }).map((m) => ({ ...m, _tipo: 'egreso' }))
+        return (obtenerCuentaOrigenId(movimiento) === cuentaId || (esTraspaso(movimiento) && obtenerCuentaDestinoId(movimiento) === cuentaId))
+          && obtenerTemporadaDesdeFecha(fechaTexto) === temporadaActiva
+          && mes < Number(mesSeleccionado || mesesDisponibles[0]?.value || '01');
+      }).map((m) => ({
+        ...m,
+        _tipo: obtenerCuentaDestinoId(m) === cuentaId && obtenerCuentaOrigenId(m) !== cuentaId ? 'ingreso' : 'egreso'
+      }))
     ];
 
     return movimientosPrevios.reduce((total, movimiento) => {
