@@ -59,8 +59,6 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
           paramsCuentas.set('clubId', String(selectedClub));
         }
 
-        paramsIngresos.set('temporada', temporadaActiva);
-        paramsEgresos.set('temporada', temporadaActiva);
         paramsCuentas.set('temporada', temporadaActiva);
 
         const [ingresosRes, egresosRes, conceptosIngresosRes, conceptosEgresosRes, cuentasRes] = await Promise.all([
@@ -241,22 +239,23 @@ export default function Reportes({ selectedClub = 'all', selectedSeason = '', te
     if (!esReporteEstadoCuenta || !cuentaSeleccionadaValida || cuentaSeleccionada === 'all') return 0;
 
     const cuentaId = Number(cuentaSeleccionada);
+    const anioInicioTemporada = Number(String(temporadaActiva).slice(0, 4));
+    const fechaInicioTemporada = Number.isFinite(anioInicioTemporada)
+      ? `${anioInicioTemporada}-07-01`
+      : null;
     const movimientosPrevios = [
       ...ingresos.filter((movimiento) => {
         const fecha = movimiento?.fecha || movimiento?.fecha_creacion;
         if (!fecha) return false;
         const fechaTexto = String(fecha).includes('T') ? String(fecha).split('T')[0] : String(fecha);
-        const mes = new Date(`${fechaTexto}T00:00:00`).getMonth() + 1;
-        return obtenerCuentaOrigenId(movimiento) === cuentaId && obtenerTemporadaDesdeFecha(fechaTexto) === temporadaActiva && mes < Number(mesSeleccionado || mesesDisponibles[0]?.value || '01');
+        return obtenerCuentaOrigenId(movimiento) === cuentaId && (!fechaInicioTemporada || fechaTexto < fechaInicioTemporada);
       }).map((m) => ({ ...m, _tipo: 'ingreso' })),
       ...egresos.filter((movimiento) => {
         const fecha = movimiento?.fecha || movimiento?.fecha_creacion;
         if (!fecha) return false;
         const fechaTexto = String(fecha).includes('T') ? String(fecha).split('T')[0] : String(fecha);
-        const mes = new Date(`${fechaTexto}T00:00:00`).getMonth() + 1;
         return (obtenerCuentaOrigenId(movimiento) === cuentaId || (esTraspaso(movimiento) && obtenerCuentaDestinoId(movimiento) === cuentaId))
-          && obtenerTemporadaDesdeFecha(fechaTexto) === temporadaActiva
-          && mes < Number(mesSeleccionado || mesesDisponibles[0]?.value || '01');
+          && (!fechaInicioTemporada || fechaTexto < fechaInicioTemporada);
       }).map((m) => ({
         ...m,
         _tipo: obtenerCuentaDestinoId(m) === cuentaId && obtenerCuentaOrigenId(m) !== cuentaId ? 'ingreso' : 'egreso'
